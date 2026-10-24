@@ -9,7 +9,7 @@ dotnet run --project src/Andromeld.Desktop
 
 SDK 版本见 `global.json`；NuGet 依赖及精确版本以各 `*.csproj` 为准，Avalonia/ReactiveUI 版本由 [AGENTS](../AGENTS.md) 固定。
 
-[`Build Desktop`](../.github/workflows/build-desktop.yml) 可手动触发，也会在应用源码、构建脚本、构建配置或 workflow 变更的 push / PR 上运行。Windows 和 Linux 两个独立 job 均先编译 FFmpeg，再使用 `global.json` 指定的 SDK 发布本体。
+[`Build Desktop`](../.github/workflows/build-desktop.yml) 在分支和 tag push 上运行。Windows 和 Linux 两个独立 job 均先恢复或编译 FFmpeg，再使用 `global.json` 指定的 SDK 发布本体；只有 tag push 发布 GitHub Release。
 
 ## ADB
 
@@ -21,7 +21,9 @@ SDK 版本见 `global.json`；NuGet 依赖及精确版本以各 `*.csproj` 为�
 
 CI 从 [FFmpeg n9.0.1 ZIP 源码](https://github.com/FFmpeg/FFmpeg/archive/refs/tags/n9.0.1.zip) 编译，仅启用 H.264 解码及 avcodec / avutil / swscale 共享库。Windows 使用 MSYS2 UCRT64；Linux 使用 Clang / LLD 和仓库现有脚本生成的 Ubuntu 22.04 sysroot 交叉编译，并检查 x86_64 架构及最高 glibc 2.35 要求。sysroot 缓存为 tar.xz，排除 dev / proc / sys / run / tmp / var/tmp，编译前解压。
 
-下载 workflow 的 `ffmpeg-9.0.1-win-x64` 或 `ffmpeg-9.0.1-linux-x64` artifact 后，将其中的 ZIP / tar.xz 解压到 `artifacts/ffmpeg/9.0.1/`。Windows 包含 `runtimes/win-x64/native/`，Linux 包含供 AppImage 使用的 `linux-x64/native/`（保留共享库符号链接）；两者均包含 `licenses/ffmpeg/`、构建配置、源码地址与 SHA-256。独立脚本为 `tools/build-ffmpeg-windows.sh <FFmpeg-n9.0.1.zip> [安装目录]`（MSYS2 UCRT64）和 `tools/build-ffmpeg-linux.sh <源码 ZIP 或 tar.gz> [sysroot] [安装目录]`（Linux x86_64，NASM ≥ 3.01）。
+FFmpeg 构建结果通过 `actions/cache` 按平台缓存整个 `artifacts/ffmpeg/9.0.1/`，构建脚本变化时失效；Linux 的 key 还包含 sysroot 脚本。命中时跳过源码下载和编译，Linux 同时跳过 sysroot 准备，Windows 跳过 MSYS2 安装。Windows 库位于 `runtimes/win-x64/native/`，Linux 库位于供 AppImage 使用的 `linux-x64/native/`（保留共享库符号链接）；两者均包含 `licenses/ffmpeg/`、构建配置、源码地址与 SHA-256。保留分支构建以填充默认分支缓存，供后续 tag 构建复用；[GitHub 缓存作用域](https://docs.github.com/en/actions/reference/workflows-and-actions/dependency-caching#restrictions-for-accessing-a-cache)不允许不同 tag 直接复用彼此的缓存。
+
+本地编译可使用 `tools/build-ffmpeg-windows.sh <FFmpeg-n9.0.1.zip> [安装目录]`（MSYS2 UCRT64）或 `tools/build-ffmpeg-linux.sh <源码 ZIP 或 tar.gz> [sysroot] [安装目录]`（Linux x86_64，NASM ≥ 3.01）。
 
 ## 发布
 
@@ -33,7 +35,9 @@ dotnet publish src/Andromeld.Desktop -c Release -r linux-x64 -o artifacts/publis
 
 配置为自包含单文件、`TrimMode=full`、ReadyToRun；`Andromeld.Protocol`、EF Core/SQLite 和终端 XAML 作为裁剪根，`Porta.Pty` 的 ConPTY 被移除。full trim 缺根会发送空认证 JSON、破坏 EF Core 比较器或终端 XAML；保留运行时 COM 封送和 JSON 反射。原生 DLL 与 FFmpeg 许可证独立放置。
 
-CI 的 `AndroMeld-win-x64` artifact 包含完整 Windows 发布目录的 ZIP；`AndroMeld-linux-x64` artifact 包含 AppImage 的 tar.xz，以保留可执行权限。两者均携带本次源码编译的 FFmpeg 和许可证；FFmpeg 独立产物也会上传。
+CI 的 `AndroMeld-win-x64` artifact 包含完整 Windows 发布目录的 ZIP；`AndroMeld-linux-x64` artifact 包含 AppImage 的 tar.xz，以保留可执行权限。两者均携带源码编译的 FFmpeg 和许可证；发布包统一收集到 `artifacts/release/`。
+
+自行创建并推送 tag（如 `git tag v1.0.0`、`git push origin v1.0.0`）后，两个平台构建成功即发布同名 GitHub Release，并附上发布目录中的两平台包及自动生成的发布说明。重跑时更新已有 Release 的附件。提交消息不影响发布，也不自动生成 tag。
 
 ### Linux AppImage
 

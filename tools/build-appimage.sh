@@ -63,8 +63,7 @@ if [ -d "$ffmpeg_native" ]; then
             exit 1
         fi
     done
-    cp -P -- "$ffmpeg_native"/libavcodec.so* "$ffmpeg_native"/libavutil.so* \
-        "$ffmpeg_native"/libswscale.so* "$app_dir/usr/bin/"
+    cp -P -- "$ffmpeg_native"/*.so* "$app_dir/usr/bin/"
     mkdir -p -- "$app_dir/usr/bin/licenses/ffmpeg"
     cp -- "$ffmpeg_cache"/licenses/ffmpeg/* "$app_dir/usr/bin/licenses/ffmpeg/"
 fi
