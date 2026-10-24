@@ -1,0 +1,22 @@
+<Window xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Andromeld.Desktop.ViewModels" xmlns:terminal="clr-namespace:Iciclecreek.Terminal;assembly=Iciclecreek.Avalonia.Terminal"
+        x:Class="Andromeld.Desktop.Views.TerminalWindow" x:DataType="vm:TerminalViewModel"
+        Title="{Binding Title}" Width="860" Height="560" MinWidth="420" MinHeight="280"
+        MaxWidth="3600" MaxHeight="4000" Background="{DynamicResource TerminalBackground}" WindowStartupLocation="CenterScreen"
+        FontFamily="Inter, Noto Sans CJK SC, Microsoft YaHei UI, PingFang SC">
+    <Grid RowDefinitions="Auto,*,Auto" Background="{DynamicResource TerminalBackground}">
+        <Grid ColumnDefinitions="*,Auto,Auto,Auto" Margin="12,8" ColumnSpacing="8">
+            <TextBlock Text="{Binding Status}" Foreground="{DynamicResource TerminalStatusForeground}" VerticalAlignment="Center"
+                       TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding Status}" />
+            <Button Grid.Column="1" Content="复制" Click="CopyClick" ToolTip.Tip="复制选中的文本（Ctrl+Shift+C）" Focusable="False" />
+            <Button Grid.Column="2" Content="粘贴" Click="PasteClick" IsEnabled="{Binding IsRunning}" ToolTip.Tip="粘贴（Ctrl+Shift+V）" Focusable="False" />
+            <Button Grid.Column="3" Content="重新连接" Command="{Binding RestartCommand}" Focusable="False" />
+        </Grid>
+        <terminal:TerminalControl x:Name="Console" Grid.Row="1" Process="" BufferSize="5000" FontSize="14"
+                                  Margin="8,0,0,8" FontFamily="Cascadia Mono, Consolas, Noto Sans Mono, Noto Sans CJK SC, Microsoft YaHei UI"
+                                  Background="{DynamicResource TerminalBackground}" Foreground="{DynamicResource TerminalForeground}"
+                                  AllowWindowOps="False" />
+        <TextBlock Grid.Row="2" Text="{Binding ExitHint}" IsVisible="{Binding HasExited}" TextWrapping="Wrap"
+                   Margin="12,8" Foreground="{DynamicResource TerminalStatusForeground}" />
+    </Grid>
+</Window>

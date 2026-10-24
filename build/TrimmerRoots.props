@@ -1,0 +1,15 @@
+<Project>
+  <!-- Shared publish roots for the desktop app and its trimmed test harness.
+       Reflection-based protocol JSON (anonymous payloads), EF Core's dynamic
+       comparers and the terminal's precompiled XAML are not trim-safe without
+       preserving these assemblies. -->
+  <ItemGroup Condition="'$(PublishTrimmed)' == 'true'">
+    <TrimmerRootAssembly Include="Andromeld.Protocol"/>
+    <TrimmerRootAssembly Include="Avalonia.Labs.Notifications"/>
+    <TrimmerRootAssembly Include="Microsoft.EntityFrameworkCore"/>
+    <TrimmerRootAssembly Include="Microsoft.EntityFrameworkCore.Relational"/>
+    <TrimmerRootAssembly Include="Microsoft.EntityFrameworkCore.Sqlite"/>
+    <TrimmerRootAssembly Include="Microsoft.Data.Sqlite"/>
+    <TrimmerRootAssembly Include="Iciclecreek.Avalonia.Terminal"/>
+  </ItemGroup>
+</Project>

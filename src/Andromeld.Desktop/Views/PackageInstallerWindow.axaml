@@ -1,0 +1,87 @@
+<Window xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Andromeld.Desktop.ViewModels" xmlns:packages="using:Andromeld.Packages"
+        xmlns:lucide="using:Lucide.Avalonia" x:Class="Andromeld.Desktop.Views.PackageInstallerWindow"
+        x:DataType="vm:PackageInstallerViewModel" Classes="workspace" Title="安装 Android 应用"
+        Width="700" Height="620" MinWidth="540" MinHeight="420" WindowStartupLocation="CenterOwner">
+  <Grid RowDefinitions="Auto,*,Auto" Margin="24" RowSpacing="20">
+    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="16">
+      <Border Width="64" Height="64" CornerRadius="16" Background="{DynamicResource AppPlaceholderBackground}">
+        <Panel>
+          <Image Source="{Binding Icon}" IsVisible="{Binding HasIcon}" Stretch="Uniform" />
+          <lucide:LucideIcon Kind="Package" IsVisible="{Binding !HasIcon}" Width="{DynamicResource IconSizeFileTile}" Height="{DynamicResource IconSizeFileTile}" Foreground="{DynamicResource AppAccent}" />
+        </Panel>
+      </Border>
+      <StackPanel Grid.Column="1" Spacing="4" VerticalAlignment="Center">
+        <WrapPanel><TextBlock Text="{Binding Name}" FontSize="22" FontWeight="SemiBold" Margin="0,0,12,0" /><TextBlock Text="{Binding Version}" Classes="muted" VerticalAlignment="Center" /></WrapPanel>
+        <SelectableTextBlock Text="{Binding PackageName}" Foreground="{DynamicResource AppSecondaryForeground}" TextWrapping="Wrap" />
+      </StackPanel>
+    </Grid>
+    <Grid Grid.Row="1" ColumnDefinitions="*,*" ColumnSpacing="16">
+      <Border Classes="card" Padding="16">
+        <Grid RowDefinitions="Auto,*" RowSpacing="12">
+          <TextBlock Text="请求的权限" FontWeight="SemiBold" />
+          <ScrollViewer Grid.Row="1" Classes="pageScroll" HorizontalScrollBarVisibility="Disabled">
+            <Panel>
+              <TextBlock Text="未声明权限" Classes="muted" IsVisible="{Binding !HasPermissions}" />
+              <ItemsControl ItemsSource="{Binding Permissions}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="vm:PackagePermissionItem">
+                    <Border Background="{DynamicResource AppControlBackground}" CornerRadius="6" Padding="10,7" Margin="0,0,0,6">
+                      <StackPanel Spacing="2"><TextBlock Text="{Binding Name}" FontWeight="Medium" TextWrapping="Wrap" /><SelectableTextBlock Text="{Binding Id}" FontSize="10" Foreground="{DynamicResource AppSecondaryForeground}" TextWrapping="Wrap" /></StackPanel>
+                    </Border>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </Panel>
+          </ScrollViewer>
+        </Grid>
+      </Border>
+      <ScrollViewer Grid.Column="1" Classes="pageScroll" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Spacing="12">
+          <Border Classes="card" Padding="16">
+            <StackPanel Spacing="10">
+              <TextBlock Text="文件详情" FontWeight="SemiBold" />
+              <SelectableTextBlock Text="{Binding FileName}" TextWrapping="Wrap" />
+              <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" ColumnSpacing="12" RowSpacing="6">
+                <TextBlock Text="大小" Classes="muted" /><TextBlock Grid.Column="1" Text="{Binding Size}" />
+                <TextBlock Grid.Row="1" Text="类型" Classes="muted" /><TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Format}" />
+                <TextBlock Grid.Row="2" Text="最低 SDK" Classes="muted" /><TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding MinSdk}" />
+                <TextBlock Grid.Row="3" Text="目标 SDK" Classes="muted" /><TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding TargetSdk}" />
+                <TextBlock Grid.Row="4" Text="内容" Classes="muted" /><TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding Contents}" TextWrapping="Wrap" />
+              </Grid>
+            </StackPanel>
+          </Border>
+          <Border Classes="card" Padding="16">
+            <StackPanel Spacing="10">
+              <TextBlock Text="签名证书" FontWeight="SemiBold" />
+              <TextBlock Text="未找到签名证书" Classes="muted" IsVisible="{Binding !HasCertificates}" />
+              <ItemsControl ItemsSource="{Binding Certificates}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="packages:PackageCertificate">
+                    <StackPanel Spacing="6" Margin="0,0,0,8">
+                      <SelectableTextBlock Text="{Binding Subject}" FontSize="11" TextWrapping="Wrap" />
+                      <TextBlock Text="SHA-256" Classes="muted" FontSize="10" />
+                      <SelectableTextBlock Text="{Binding Sha256}" FontSize="10" TextWrapping="Wrap" />
+                    </StackPanel>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+              <TextBlock Text="证书信息仅供核对，签名有效性由 Android 安装时验证。" Classes="muted" FontSize="10" TextWrapping="Wrap" />
+            </StackPanel>
+          </Border>
+        </StackPanel>
+      </ScrollViewer>
+    </Grid>
+    <StackPanel Grid.Row="2" Spacing="12">
+      <TextBlock Text="{Binding Error}" Foreground="{DynamicResource AppErrorForeground}" IsVisible="{Binding HasError}" TextWrapping="Wrap" MaxHeight="90" />
+      <ProgressBar IsVisible="{Binding IsLoading}" IsIndeterminate="True" />
+      <ProgressBar IsVisible="{Binding IsInstalling}" Value="{Binding Progress}" Minimum="0" Maximum="100" />
+      <TextBlock Text="{Binding Status}" Classes="muted" TextWrapping="Wrap" />
+      <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="12">
+        <ComboBox ItemsSource="{Binding Devices}" SelectedItem="{Binding SelectedDevice}" HorizontalAlignment="Stretch" IsEnabled="{Binding !IsInstalling}" />
+        <Button Grid.Column="1" Content="关闭" Click="CloseClick" />
+        <Button Grid.Column="2" Content="安装" Classes="primary" Command="{Binding InstallCommand}" />
+      </Grid>
+    </StackPanel>
+  </Grid>
+</Window>

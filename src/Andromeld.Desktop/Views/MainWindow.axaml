@@ -1,0 +1,118 @@
+<Window xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Andromeld.Desktop.ViewModels" xmlns:fa="using:FluentAvalonia.UI.Controls" xmlns:controls="using:Andromeld.Desktop.Controls"
+        xmlns:views="using:Andromeld.Desktop.Views"
+        x:Class="Andromeld.Desktop.Views.MainWindow" x:DataType="vm:MainViewModel" Classes="workspace"
+        Title="AndroMeld" Width="420" Height="780" MinWidth="360" MinHeight="520" WindowStartupLocation="CenterScreen">
+    <Grid RowDefinitions="Auto,Auto,*" Margin="16">
+        <TextBlock Text="AndroMeld" FontSize="25" FontWeight="SemiBold" Margin="4,0,0,16" />
+        <Border Grid.Row="1" Classes="segmentedSelector" Margin="0,0,0,20">
+            <Grid ColumnDefinitions="*,*,*">
+                <Button x:Name="DevicePageButton" Content="设备" Classes="page" Classes.selected="{Binding IsDevicePage}"
+                        Command="{Binding ShowDeviceCommand}" HorizontalContentAlignment="Center" />
+                <Button x:Name="ApplicationsPageButton" Grid.Column="1" Content="应用" Classes="page" Classes.selected="{Binding IsApplicationsPage}"
+                        Command="{Binding ShowApplicationsCommand}" HorizontalContentAlignment="Center" />
+                <Button x:Name="SettingsPageButton" Grid.Column="2" Content="设置" Classes="page" Classes.selected="{Binding IsSettingsPage}"
+                        Command="{Binding ShowSettingsCommand}" HorizontalContentAlignment="Center" />
+            </Grid>
+        </Border>
+        <views:DeviceConnectionView x:Name="DevicePage" Grid.Row="2" IsVisible="{Binding IsDevicePage}" />
+        <Grid Grid.Row="2" IsVisible="{Binding IsSettingsPage}">
+            <views:SettingsView x:Name="SettingsPage" />
+        </Grid>
+        <Grid x:Name="ApplicationsPage" Grid.Row="2" IsVisible="{Binding IsApplicationsPage}" RowDefinitions="Auto,Auto,Auto,*">
+
+            <Grid Margin="0,0,0,16">
+                <StackPanel Spacing="4">
+                    <TextBlock Text="应用" Classes="heading" />
+                    <TextBlock Text="{Binding AppCount}" Classes="muted" IsVisible="{Binding IsConnected}" ToolTip.Tip="{Binding AppsStatus}" />
+                </StackPanel>
+            </Grid>
+            <fa:FAInfoBar Grid.Row="1" Severity="Error" IsOpen="{Binding HasError, Mode=OneWay}" IsVisible="{Binding HasError}"
+                          CloseButtonCommand="{Binding DismissErrorCommand}" Message="{Binding Error}" ToolTip.Tip="{Binding Error}"
+                          Margin="0,0,0,16" />
+            <Grid Grid.Row="2" ColumnDefinitions="*,Auto" Margin="0,0,0,16">
+                <TextBox x:Name="AppSearch" Text="{Binding Search}" PlaceholderText="搜索应用或粘贴链接…" IsEnabled="{Binding IsConnected}" Margin="0,0,8,0" />
+                <Button Grid.Column="1" Content="刷新" Command="{Binding RefreshAppsCommand}" />
+            </Grid>
+            <Grid Grid.Row="3" RowDefinitions="Auto,*,Auto">
+                <StackPanel x:Name="SearchTools" Spacing="8" IsVisible="{Binding HasSearchTools}" Margin="0,0,0,12">
+                    <Button x:Name="SearchPhone" Content="手机屏幕" Command="{Binding OpenPhoneCommand}" IsVisible="{Binding ShowSearchPhone}"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" />
+                    <Button x:Name="SearchFiles" Content="文件" Command="{Binding ShowFilesCommand}" IsVisible="{Binding ShowSearchFiles}"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" />
+                    <Button x:Name="SearchTerminal" Content="终端" Command="{Binding OpenSearchTerminalCommand}"
+                            IsVisible="{Binding ShowSearchTerminal}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" />
+                </StackPanel>
+                <ListBox Grid.Row="1" Classes="apps" x:Name="AppList" ItemsSource="{Binding Apps}" SelectedItem="{Binding SelectedApp}"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <controls:AdaptiveTilePanel MinimumItemWidth="96" Spacing="8" />
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+                    <ListBox.ItemContainerTheme>
+                        <ControlTheme TargetType="ListBoxItem" BasedOn="{StaticResource {x:Type ListBoxItem}}" x:DataType="vm:AppTile">
+                            <Setter Property="ContextFlyout">
+                                <fa:FAMenuFlyout>
+                                    <fa:FAMenuFlyoutItem Text="{Binding PinActionLabel}" Command="{Binding TogglePinCommand}" />
+                                </fa:FAMenuFlyout>
+                            </Setter>
+                        </ControlTheme>
+                    </ListBox.ItemContainerTheme>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate x:DataType="vm:AppTile">
+                            <Border Classes="appTile" Height="{StaticResource AppTileHeight}" CornerRadius="14" Padding="8"
+                                    ToolTip.Tip="{Binding Detail}">
+                                <Grid>
+                                    <LucideIcon Kind="Pin" Size="{StaticResource IconSizeSmall}" Foreground="{DynamicResource AppAccent}"
+                                                HorizontalAlignment="Left" VerticalAlignment="Top" IsVisible="{Binding IsPinned}" ToolTip.Tip="已置顶" />
+                                    <Grid RowDefinitions="44,Auto,*" RowSpacing="8" Margin="0,4,0,0">
+                                        <Grid Width="44" Height="44" HorizontalAlignment="Center">
+                                            <Border CornerRadius="14" Background="{DynamicResource AppPlaceholderBackground}"
+                                                    IsVisible="{Binding !HasIcon}">
+                                                <TextBlock Text="{Binding Initial}" FontSize="25"
+                                                           Foreground="{DynamicResource AppSecondaryForeground}" HorizontalAlignment="Center"
+                                                           VerticalAlignment="Center" />
+                                            </Border>
+                                            <Image Source="{Binding Icon}" IsVisible="{Binding HasIcon}" Stretch="Uniform" />
+                                        </Grid>
+                                        <TextBlock Grid.Row="1" Text="{Binding Name}" TextAlignment="Center" TextTrimming="CharacterEllipsis"
+                                                   FontWeight="Medium" FontSize="13" />
+                                        <Grid Grid.Row="2" ColumnDefinitions="*,Auto" ColumnSpacing="4">
+                                            <TextBlock Text="正在运行" FontSize="11" TextAlignment="Center" TextTrimming="CharacterEllipsis"
+                                                       Foreground="{DynamicResource AppSuccessForeground}" IsVisible="{Binding IsRunning}" />
+                                            <TextBlock Grid.Column="1" Text="{Binding Profile}" Classes="muted" FontSize="11"
+                                                       TextTrimming="CharacterEllipsis" />
+                                        </Grid>
+                                    </Grid>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+                <StackPanel x:Name="AppEmptyState" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12"
+                            IsVisible="{Binding ShowAppsEmptyState}" MaxWidth="360" Margin="20">
+                    <TextBlock Text="{Binding AppsStatus}" TextWrapping="Wrap" TextAlignment="Center"
+                               Foreground="{DynamicResource AppSecondaryForeground}" />
+                    <TextBlock Text="连接手机后，即可打开应用、浏览文件或镜像屏幕。" Classes="muted" TextWrapping="Wrap" TextAlignment="Center"
+                               IsVisible="{Binding !IsConnected}" />
+                    <Button x:Name="ConnectEmptyButton" Content="连接设备" Classes="primary" Click="ShowDeviceClick" HorizontalAlignment="Center"
+                            IsVisible="{Binding ShowConnectAction}" />
+                </StackPanel>
+                <StackPanel Grid.Row="{Binding SearchActionRow}" Spacing="8" IsVisible="{Binding ShowSearchAction}" Margin="0,12,0,0">
+                    <TextBlock Text="操作" Classes="muted" />
+                    <Button x:Name="SearchAction" Command="{Binding RunSearchActionCommand}" HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="{Binding SearchActionLabel}" FontWeight="Medium" />
+                            <TextBlock Text="{Binding SearchActionText}" Classes="muted" TextTrimming="CharacterEllipsis" MaxLines="2"
+                                       TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Button>
+                    <TextBlock Text="{Binding SearchFeedback}" Classes="muted" TextWrapping="Wrap" />
+                </StackPanel>
+                <ProgressBar Grid.Row="1" IsIndeterminate="True" Height="3" VerticalAlignment="Top" IsVisible="{Binding AppsLoading}" />
+            </Grid>
+        </Grid>
+    </Grid>
+</Window>

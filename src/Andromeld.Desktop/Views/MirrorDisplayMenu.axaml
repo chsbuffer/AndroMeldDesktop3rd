@@ -1,0 +1,46 @@
+<MenuFlyout xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+            xmlns:vm="using:Andromeld.Desktop.ViewModels"
+            x:Class="Andromeld.Desktop.Views.MirrorDisplayMenu" x:DataType="vm:MirrorViewModel"
+            Placement="BottomEdgeAlignedRight">
+    <MenuItem x:Name="ZoomRow" StaysOpenOnClick="True" Focusable="False">
+        <MenuItem.Template>
+            <ControlTemplate>
+                <Border Padding="8,4">
+                    <ContentPresenter Content="{TemplateBinding Header}" />
+                </Border>
+            </ControlTemplate>
+        </MenuItem.Template>
+        <MenuItem.Header>
+            <Grid Width="192" ColumnDefinitions="32,*,32">
+                <Button x:Name="ZoomOutButton" Command="{Binding ZoomOutCommand}" Width="32" Height="28" Padding="0"
+                        HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                        Background="Transparent" AutomationProperties.Name="缩小">
+                    <LucideIcon Kind="Minus" Size="{StaticResource IconSizeCompact}" />
+                </Button>
+                <TextBlock Grid.Column="1" Text="{Binding ZoomLabel}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="13" />
+                <Button x:Name="ZoomInButton" Grid.Column="2" Command="{Binding ZoomInCommand}" Width="32" Height="28" Padding="0"
+                        HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                        Background="Transparent" AutomationProperties.Name="放大">
+                    <LucideIcon Kind="Plus" Size="{StaticResource IconSizeCompact}" />
+                </Button>
+            </Grid>
+        </MenuItem.Header>
+    </MenuItem>
+    <MenuItem x:Name="CompatibilityMenu" Header="兼容分辨率" IsEnabled="{Binding CanChangeDisplay}">
+        <MenuItem x:Name="CompatibilityOffItem" Header="关闭" ToggleType="Radio" IsChecked="{Binding IsCompatibilityOff, Mode=OneWay}"
+                  Command="{Binding CompatibilityOffCommand}" />
+        <MenuItem x:Name="CompatibilityAppItem" Header="{Binding CompatibilityAppLabel}" ToggleType="Radio"
+                  IsChecked="{Binding IsCompatibilityApp, Mode=OneWay}"
+                  Command="{Binding CompatibilityAppCommand}" />
+        <MenuItem x:Name="CompatibilityAllItem" Header="为所有应用启用" ToggleType="Radio" IsChecked="{Binding IsCompatibilityAll, Mode=OneWay}"
+                  Command="{Binding CompatibilityAllCommand}" />
+    </MenuItem>
+    <MenuItem x:Name="ImmersiveTitleBarItem" Header="沉浸式顶栏" ToggleType="CheckBox"
+              IsChecked="{Binding ImmersiveTitleBarEnabled, Mode=OneWay}" Command="{Binding ToggleImmersiveTitleBarCommand}"
+              ToolTip.Tip="让画面延伸到标题栏下方" />
+    <Separator />
+    <MenuItem x:Name="ScreenCameraItem" Header="屏幕摄像头" ToggleType="CheckBox" IsChecked="{Binding ScreenCameraEnabled, Mode=TwoWay}"
+              IsEnabled="{Binding CanUseScreenCamera}" ToolTip.Tip="{Binding ScreenCameraStatus}" />
+    <Separator />
+    <MenuItem x:Name="ScreenshotItem" Header="截图" Command="{Binding ScreenshotCommand}" />
+</MenuFlyout>

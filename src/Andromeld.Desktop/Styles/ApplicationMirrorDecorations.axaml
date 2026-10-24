@@ -1,0 +1,215 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:chrome="using:Avalonia.Controls.Chrome" xmlns:views="using:Andromeld.Desktop.Views"
+                    xmlns:vm="using:Andromeld.Desktop.ViewModels">
+    <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Light">
+            <SolidColorBrush x:Key="MirrorCaptionForeground">#35363D</SolidColorBrush>
+            <SolidColorBrush x:Key="MirrorCaptionSecondary">#686974</SolidColorBrush>
+            <SolidColorBrush x:Key="MirrorCaptionSurface">#99FFFFFF</SolidColorBrush>
+            <SolidColorBrush x:Key="MirrorCaptionBorder">#33000000</SolidColorBrush>
+            <SolidColorBrush x:Key="MirrorCaptionHover">#CCE6E7EB</SolidColorBrush>
+            <SolidColorBrush x:Key="MirrorCaptionPressed">#CCD8DAE0</SolidColorBrush>
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="Dark">
+            <SolidColorBrush x:Key="MirrorCaptionForeground">#F5F5F7</SolidColorBrush>
+            <SolidColorBrush x:Key="MirrorCaptionSecondary">#D6D6DD</SolidColorBrush>
+            <SolidColorBrush x:Key="MirrorCaptionSurface">#991C1D21</SolidColorBrush>
+            <SolidColorBrush x:Key="MirrorCaptionBorder">#40FFFFFF</SolidColorBrush>
+            <SolidColorBrush x:Key="MirrorCaptionHover">#CC3B3D45</SolidColorBrush>
+            <SolidColorBrush x:Key="MirrorCaptionPressed">#CC50535E</SolidColorBrush>
+        </ResourceDictionary>
+    </ResourceDictionary.ThemeDictionaries>
+    <ControlTheme x:Key="MirrorCaptionButton" TargetType="Button">
+        <Setter Property="Width" Value="45" /><Setter Property="Height" Value="32" />
+        <Setter Property="Foreground" Value="{DynamicResource MirrorCaptionForeground}" /><Setter Property="Focusable" Value="False" />
+        <Setter Property="Cursor" Value="Arrow" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border x:Name="CaptionSurface" Background="{DynamicResource MirrorCaptionSurface}">
+                    <ContentPresenter Content="{TemplateBinding Content}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Border>
+            </ControlTemplate>
+        </Setter>
+        <Style Selector="^:pointerover /template/ Border#CaptionSurface">
+            <Setter Property="Background" Value="{DynamicResource MirrorCaptionHover}" />
+        </Style>
+        <Style Selector="^:pressed /template/ Border#CaptionSurface">
+            <Setter Property="Background" Value="{DynamicResource MirrorCaptionPressed}" />
+        </Style>
+        <Style Selector="^.close:pointerover">
+            <Setter Property="Foreground" Value="{DynamicResource MirrorCloseForeground}" />
+        </Style>
+        <Style Selector="^.close:pointerover /template/ Border#CaptionSurface">
+            <Setter Property="Background" Value="{DynamicResource MirrorCloseHover}" />
+        </Style>
+        <Style Selector="^.close:pressed /template/ Border#CaptionSurface">
+            <Setter Property="Background" Value="{DynamicResource MirrorClosePressed}" />
+        </Style>
+        <Style Selector="^:disabled">
+            <Setter Property="Opacity" Value="0.4" />
+        </Style>
+    </ControlTheme>
+    <ControlTheme x:Key="MirrorTitleBackButton" TargetType="Button">
+        <Setter Property="Height" Value="24" /><Setter Property="Padding" Value="9,2" />
+        <Setter Property="Foreground" Value="{DynamicResource MirrorCaptionForeground}" /><Setter Property="Focusable" Value="False" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border x:Name="BackSurface" Background="{DynamicResource MirrorCaptionSurface}" BorderBrush="{DynamicResource MirrorCaptionBorder}"
+                        BorderThickness="1" CornerRadius="12" Padding="{TemplateBinding Padding}">
+                    <ContentPresenter Content="{TemplateBinding Content}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Border>
+            </ControlTemplate>
+        </Setter>
+        <Style Selector="^:pointerover /template/ Border#BackSurface">
+            <Setter Property="Background" Value="{DynamicResource MirrorCaptionHover}" />
+        </Style>
+        <Style Selector="^:pressed /template/ Border#BackSurface">
+            <Setter Property="Background" Value="{DynamicResource MirrorCaptionPressed}" />
+        </Style>
+        <Style Selector="^:disabled">
+            <Setter Property="Opacity" Value="0.45" />
+        </Style>
+    </ControlTheme>
+    <ControlTheme x:Key="ApplicationMirrorDecorations" TargetType="chrome:WindowDrawnDecorations" x:DataType="vm:MirrorViewModel">
+        <Setter Property="DefaultTitleBarHeight" Value="32" />
+        <Setter Property="DefaultFrameThickness" Value="1" />
+        <Setter Property="DefaultShadowThickness" Value="8" />
+        <Setter Property="Template">
+            <WindowDrawnDecorationsTemplate>
+                <chrome:WindowDrawnDecorationsContent>
+                    <chrome:WindowDrawnDecorationsContent.Underlay>
+                        <Border x:Name="MirrorFrame" Margin="{TemplateBinding ShadowThickness}" Background="{DynamicResource VideoBackground}"
+                                BorderThickness="{TemplateBinding FrameThickness}" BorderBrush="{DynamicResource AppBorder}" IsHitTestVisible="False" />
+                    </chrome:WindowDrawnDecorationsContent.Underlay>
+                    <chrome:WindowDrawnDecorationsContent.Overlay>
+                        <Border Margin="{TemplateBinding ShadowThickness}" Padding="{TemplateBinding FrameThickness}">
+                            <ThemeVariantScope RequestedThemeVariant="{Binding $parent[views:MirrorWindow].CaptionTheme}">
+                                <ThemeVariantScope.Styles>
+                                    <Style Selector="Button">
+                                        <Setter Property="Foreground" Value="{DynamicResource MirrorCaptionForeground}" />
+                                    </Style>
+                                </ThemeVariantScope.Styles>
+                                <Grid x:Name="PART_TitleBar" ColumnDefinitions="*,Auto,Auto" Height="{TemplateBinding TitleBarHeight}"
+                                      VerticalAlignment="Top" Background="Transparent" IsVisible="{TemplateBinding HasTitleBar}"
+                                      chrome:WindowDecorationProperties.ElementRole="TitleBar">
+                                    <Border Grid.ColumnSpan="3" Background="{Binding $parent[views:MirrorWindow].CaptionBackground}"
+                                            IsVisible="{Binding !ImmersiveTitleBarEnabled}" IsHitTestVisible="False" />
+                                    <Grid ColumnDefinitions="Auto,*" Margin="8,0,8,0" IsHitTestVisible="False">
+                                        <Image Source="{Binding $parent[views:MirrorWindow].TitleIcon}" Width="16" Height="16" Margin="0,0,8,0"
+                                               Stretch="Uniform" />
+                                        <TextBlock x:Name="MirrorCaptionTitle" Grid.Column="1" Text="{TemplateBinding Title}"
+                                                   VerticalAlignment="Center"
+                                                   FontSize="12" Foreground="{DynamicResource MirrorCaptionForeground}"
+                                                   TextTrimming="CharacterEllipsis" />
+                                    </Grid>
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4" Margin="0,0,8,0">
+                                        <Button x:Name="TitleBackButton" Theme="{StaticResource MirrorTitleBackButton}" Padding="8,4"
+                                                VerticalAlignment="Center" Command="{Binding BackCommand}"
+                                                chrome:WindowDecorationProperties.ElementRole="User"
+                                                ToolTip.Tip="返回（Esc）" AutomationProperties.Name="返回（Esc）">
+                                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                                <LucideIcon Kind="ChevronLeft" Size="{StaticResource IconSizeSmall}" VerticalAlignment="Center" />
+                                                <TextBlock Text="返回" FontSize="11" VerticalAlignment="Center" />
+                                                <TextBlock Text="Esc" FontSize="10" Foreground="{DynamicResource MirrorCaptionSecondary}"
+                                                           VerticalAlignment="Center" />
+                                            </StackPanel>
+                                        </Button>
+                                        <Button x:Name="TitleDisplayButton" Theme="{StaticResource MirrorTitleBackButton}" Width="24" Padding="0"
+                                                VerticalAlignment="Center"
+                                                Flyout="{Binding $parent[views:MirrorWindow].DisplayMenu}"
+                                                chrome:WindowDecorationProperties.ElementRole="User"
+                                                ToolTip.Tip="显示设置" AutomationProperties.Name="显示设置">
+                                            <LucideIcon Kind="Ellipsis" Size="{StaticResource IconSizeCompact}" />
+                                        </Button>
+                                    </StackPanel>
+                                    <StackPanel x:Name="MirrorCaptionButtons" Grid.Column="2" Orientation="Horizontal">
+                                        <Button x:Name="PART_MinimizeButton" Theme="{StaticResource MirrorCaptionButton}" ToolTip.Tip="最小化"
+                                                chrome:WindowDecorationProperties.ElementRole="MinimizeButton">
+                                            <LucideIcon Kind="Minus" Size="{StaticResource IconSizeCompact}"
+                                                        Foreground="{Binding $parent[Button].Foreground}" />
+                                        </Button>
+                                        <Button x:Name="PART_FullScreenButton" Theme="{StaticResource MirrorCaptionButton}" ToolTip.Tip="全屏"
+                                                chrome:WindowDecorationProperties.ElementRole="FullScreenButton">
+                                            <LucideIcon Kind="Maximize" Size="{StaticResource IconSizeCompact}"
+                                                        Foreground="{Binding $parent[Button].Foreground}" />
+                                        </Button>
+                                        <Button x:Name="PART_CloseButton" Classes="close" Theme="{StaticResource MirrorCaptionButton}"
+                                                ToolTip.Tip="关闭"
+                                                chrome:WindowDecorationProperties.ElementRole="CloseButton">
+                                            <LucideIcon Kind="X" Size="{StaticResource IconSizeCompact}"
+                                                        Foreground="{Binding $parent[Button].Foreground}" />
+                                        </Button>
+                                    </StackPanel>
+                                </Grid>
+                            </ThemeVariantScope>
+                        </Border>
+                    </chrome:WindowDrawnDecorationsContent.Overlay>
+                    <chrome:WindowDrawnDecorationsContent.FullscreenPopover>
+                        <ThemeVariantScope VerticalAlignment="Top" RequestedThemeVariant="{Binding $parent[views:MirrorWindow].CaptionTheme}">
+                            <ThemeVariantScope.Styles>
+                                <Style Selector="Button">
+                                    <Setter Property="Foreground" Value="{DynamicResource MirrorCaptionForeground}" />
+                                </Style>
+                            </ThemeVariantScope.Styles>
+                            <Grid x:Name="FullscreenControlBar" ColumnDefinitions="*,Auto,Auto" Height="{TemplateBinding DefaultTitleBarHeight}"
+                                  Background="{DynamicResource AppBackground}" chrome:WindowDecorationProperties.ElementRole="DecorationsElement">
+                                <Grid ColumnDefinitions="Auto,*" Margin="8,0,8,0" IsHitTestVisible="False">
+                                    <Image Source="{Binding $parent[views:MirrorWindow].TitleIcon}" Width="16" Height="16" Margin="0,0,8,0" Stretch="Uniform" />
+                                    <TextBlock Grid.Column="1" Text="{TemplateBinding Title}" VerticalAlignment="Center"
+                                               FontSize="12" Foreground="{DynamicResource MirrorCaptionForeground}" TextTrimming="CharacterEllipsis" />
+                                </Grid>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4" Margin="0,0,8,0">
+                                    <Button x:Name="PopoverBackButton" Theme="{StaticResource MirrorTitleBackButton}" Padding="8,4"
+                                            VerticalAlignment="Center" Command="{Binding BackCommand}"
+                                            chrome:WindowDecorationProperties.ElementRole="User"
+                                            ToolTip.Tip="返回（Esc）" AutomationProperties.Name="返回（Esc）">
+                                        <StackPanel Orientation="Horizontal" Spacing="4">
+                                            <LucideIcon Kind="ChevronLeft" Size="{StaticResource IconSizeSmall}" VerticalAlignment="Center" />
+                                            <TextBlock Text="返回" FontSize="11" VerticalAlignment="Center" />
+                                            <TextBlock Text="Esc" FontSize="10" Foreground="{DynamicResource MirrorCaptionSecondary}" VerticalAlignment="Center" />
+                                        </StackPanel>
+                                    </Button>
+                                    <Button x:Name="PopoverDisplayButton" Theme="{StaticResource MirrorTitleBackButton}" Width="24" Padding="0"
+                                            VerticalAlignment="Center" Flyout="{Binding $parent[views:MirrorWindow].DisplayMenu}"
+                                            chrome:WindowDecorationProperties.ElementRole="User"
+                                            ToolTip.Tip="显示设置" AutomationProperties.Name="显示设置">
+                                        <LucideIcon Kind="Ellipsis" Size="{StaticResource IconSizeCompact}" />
+                                    </Button>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                                    <Button x:Name="PopoverMinimizeButton" Theme="{StaticResource MirrorCaptionButton}" ToolTip.Tip="最小化"
+                                            AutomationProperties.Name="最小化" Command="{Binding $parent[views:MirrorWindow].Minimize}"
+                                            IsEnabled="{Binding $parent[views:MirrorWindow].CanMinimize}"
+                                            chrome:WindowDecorationProperties.ElementRole="MinimizeButton">
+                                        <LucideIcon Kind="Minus" Size="{StaticResource IconSizeCompact}" Foreground="{Binding $parent[Button].Foreground}" />
+                                    </Button>
+                                    <Button x:Name="PART_PopoverFullScreenButton" Theme="{StaticResource MirrorCaptionButton}" ToolTip.Tip="退出全屏"
+                                            chrome:WindowDecorationProperties.ElementRole="FullScreenButton">
+                                        <LucideIcon Kind="Minimize" Size="{StaticResource IconSizeCompact}" Foreground="{Binding $parent[Button].Foreground}" />
+                                    </Button>
+                                    <Button x:Name="PART_PopoverCloseButton" Classes="close" Theme="{StaticResource MirrorCaptionButton}" ToolTip.Tip="关闭"
+                                            chrome:WindowDecorationProperties.ElementRole="CloseButton">
+                                        <LucideIcon Kind="X" Size="{StaticResource IconSizeCompact}" Foreground="{Binding $parent[Button].Foreground}" />
+                                    </Button>
+                                </StackPanel>
+                            </Grid>
+                        </ThemeVariantScope>
+                    </chrome:WindowDrawnDecorationsContent.FullscreenPopover>
+                </chrome:WindowDrawnDecorationsContent>
+            </WindowDrawnDecorationsTemplate>
+        </Setter>
+        <Style Selector="^:has-shadow /template/ Border#MirrorFrame">
+            <Setter Property="BoxShadow" Value="{DynamicResource MirrorFrameShadow}" />
+        </Style>
+        <Style Selector="^:fullscreen /template/ Grid#PART_TitleBar">
+            <Setter Property="IsVisible" Value="False" />
+        </Style>
+        <Style Selector="^:not(:has-minimize) /template/ Button#PART_MinimizeButton, ^:not(:has-minimize) /template/ Button#PopoverMinimizeButton">
+            <Setter Property="IsVisible" Value="False" />
+        </Style>
+        <Style Selector="^:not(:has-fullscreen) /template/ Button#PART_FullScreenButton">
+            <Setter Property="IsVisible" Value="False" />
+        </Style>
+    </ControlTheme>
+</ResourceDictionary>

@@ -1,0 +1,7 @@
+<Project>
+  <!-- The terminal attaches a remote IPtyConnection and never starts a local PTY,
+       so Porta.Pty's ConPTY host and conpty.dll are not needed. -->
+  <ItemGroup>
+    <PrunePackageReference Include="Microsoft.Windows.Console.ConPTY" Version="999.0.0.0" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,274 @@
+<UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Andromeld.Desktop.ViewModels" xmlns:fa="using:FluentAvalonia.UI.Controls"
+             xmlns:qr="using:Avalonia.Labs.Qr"
+             x:Class="Andromeld.Desktop.Views.DeviceConnectionView" x:DataType="vm:MainViewModel">
+    <Grid RowDefinitions="Auto,Auto,*,Auto" Margin="0">
+        <StackPanel Spacing="8" Margin="0,0,0,20">
+            <TextBlock Text="设备连接" Classes="heading" /><TextBlock Text="选择附近设备或使用其他连接方式" Classes="muted" TextWrapping="Wrap" />
+        </StackPanel>
+        <fa:FAInfoBar x:Name="DeviceError" Grid.Row="1" Severity="Error" IsOpen="{Binding HasError, Mode=OneWay}" IsVisible="{Binding HasError}"
+                      CloseButtonCommand="{Binding DismissErrorCommand}" Message="{Binding Error}" ToolTip.Tip="{Binding Error}" Margin="0,0,0,16" />
+        <ScrollViewer x:Name="DeviceScroll" Classes="pageScroll" Grid.Row="2" HorizontalScrollBarVisibility="Disabled"
+                      VerticalScrollBarVisibility="Auto">
+            <StackPanel Spacing="16">
+                <Border x:Name="ConnectedDeviceCard" Classes="card" IsVisible="{Binding IsConnected}" Padding="16">
+                    <StackPanel Spacing="16">
+                        <Grid ColumnDefinitions="24,*,28" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="8">
+                            <LucideIcon Kind="Smartphone" Size="{StaticResource IconSizeLarge}" Grid.RowSpan="2"
+                                        Foreground="{DynamicResource AppSecondaryForeground}" />
+                            <Grid Grid.Column="1" ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                <TextBlock x:Name="ConnectedDeviceName" Text="{Binding DeviceName}" MaxWidth="180" FontSize="16"
+                                           FontWeight="SemiBold" TextTrimming="CharacterEllipsis" HorizontalAlignment="Left"
+                                           VerticalAlignment="Center" ToolTip.Tip="{Binding DeviceName}" />
+                                <Border Grid.Column="1" Background="{DynamicResource AppSuccessBackground}" CornerRadius="4" Padding="4,4"
+                                        VerticalAlignment="Center">
+                                    <TextBlock Text="已连接" Foreground="{DynamicResource AppSuccessForeground}" FontSize="10" FontWeight="SemiBold" />
+                                </Border>
+                            </Grid>
+                            <Button Grid.Column="2" x:Name="DeviceCardDisconnect" Classes="deviceIcon" Command="{Binding DisconnectCommand}"
+                                    ToolTip.Tip="断开连接" AutomationProperties.Name="断开连接">
+                                <LucideIcon Kind="X" Size="{StaticResource IconSizeCompact}" />
+                            </Button>
+                            <Grid Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+                                <TextBlock x:Name="DeviceIdentifierText" Text="{Binding DeviceIdentifier}" Classes="muted" FontSize="10"
+                                           TextTrimming="CharacterEllipsis" VerticalAlignment="Center" ToolTip.Tip="{Binding DeviceIdentifier}"
+                                           AutomationProperties.Name="设备 ID" />
+                                <Border Grid.Column="1" Background="{DynamicResource AppBadgeBackground}" CornerRadius="5" Padding="4,4"
+                                        VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding ConnectionTransport}" FontSize="10"
+                                               Foreground="{DynamicResource AppSecondaryForeground}" />
+                                </Border>
+                                <Border Grid.Column="2" Background="{DynamicResource AppBadgeBackground}" CornerRadius="5" Padding="4,4"
+                                        VerticalAlignment="Center" ToolTip.Tip="{Binding DeviceBatteryDescription}">
+                                    <StackPanel Orientation="Horizontal" Spacing="4">
+                                        <LucideIcon Kind="{Binding DeviceBatteryIcon}" Size="{StaticResource IconSizeNormal}"
+                                                    Foreground="{DynamicResource AppSecondaryForeground}" VerticalAlignment="Center"
+                                                    IsVisible="{Binding HasDeviceBattery}" />
+                                        <LucideIcon Kind="Zap" Size="{StaticResource IconSizeSmall}"
+                                                    Foreground="{DynamicResource AppSuccessForeground}" VerticalAlignment="Center"
+                                                    IsVisible="{Binding IsDeviceCharging}" />
+                                        <TextBlock x:Name="DeviceBatteryText" Text="{Binding DeviceBatteryText}" FontSize="10"
+                                                   Foreground="{DynamicResource AppSecondaryForeground}" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+                        </Grid>
+                        <StackPanel x:Name="DeviceStorage" Spacing="4" IsVisible="{Binding HasDeviceStorage}">
+                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                <TextBlock x:Name="DeviceStorageText" Text="{Binding DeviceStorageText}" Classes="muted" FontSize="11"
+                                           TextTrimming="CharacterEllipsis" />
+                                <TextBlock Grid.Column="1" x:Name="DeviceStoragePercentText" Text="{Binding DeviceStoragePercentText}"
+                                           Classes="muted" FontSize="11" />
+                            </Grid>
+                            <ProgressBar x:Name="DeviceStorageBar" Minimum="0" Maximum="100" Value="{Binding DeviceStoragePercent}" Height="4"
+                                         MinHeight="0" CornerRadius="2" Foreground="{DynamicResource AppStorageFill}"
+                                         Background="{DynamicResource AppControlBackground}" AutomationProperties.Name="存储空间已用比例" />
+                        </StackPanel>
+                        <TextBlock x:Name="DeviceInformationStatus" Text="{Binding DeviceInformationStatus}" Classes="muted" FontSize="11"
+                                   IsVisible="{Binding !HasDeviceStorage}" TextWrapping="Wrap" />
+                    </StackPanel>
+                </Border>
+                <StackPanel x:Name="DeviceActions" IsVisible="{Binding IsConnected}" Spacing="12">
+                    <Button x:Name="FilesButton" Command="{Binding ShowFilesCommand}" HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch" Padding="16,16" Background="{DynamicResource AppSurface}"
+                            AutomationProperties.Name="文件浏览">
+                        <Grid ColumnDefinitions="32,*,Auto" ColumnSpacing="12">
+                            <LucideIcon Kind="Folder" Size="{StaticResource IconSizeLarge}" Foreground="{DynamicResource AppAccent}" />
+                            <StackPanel Grid.Column="1" Spacing="4">
+                                <TextBlock Text="文件浏览" FontWeight="Medium" /><TextBlock Text="浏览和下载手机文件" Classes="muted" FontSize="12" />
+                            </StackPanel>
+                            <LucideIcon Grid.Column="2" Kind="ChevronRight" Size="{StaticResource IconSizeNormal}"
+                                        Foreground="{DynamicResource AppTertiaryForeground}" VerticalAlignment="Center" />
+                        </Grid>
+                    </Button>
+                    <Button x:Name="PhoneScreenButton" Command="{Binding OpenPhoneCommand}" HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch" Padding="16,16" Background="{DynamicResource AppSurface}"
+                            AutomationProperties.Name="屏幕镜像">
+                        <Grid ColumnDefinitions="32,*,Auto" ColumnSpacing="12">
+                            <LucideIcon Kind="Smartphone" Size="{StaticResource IconSizeLarge}" Foreground="{DynamicResource AppAccent}" />
+                            <StackPanel Grid.Column="1" Spacing="4">
+                                <TextBlock Text="屏幕镜像" FontWeight="Medium" /><TextBlock Text="查看和控制手机屏幕" Classes="muted" FontSize="12" />
+                            </StackPanel>
+                            <LucideIcon Grid.Column="2" Kind="ChevronRight" Size="{StaticResource IconSizeNormal}"
+                                        Foreground="{DynamicResource AppTertiaryForeground}" VerticalAlignment="Center" />
+                        </Grid>
+                    </Button>
+                    <Button x:Name="TerminalButton" Command="{Binding OpenTerminalCommand}" HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch" Padding="16,16" Background="{DynamicResource AppSurface}"
+                            AutomationProperties.Name="终端">
+                        <Grid ColumnDefinitions="32,*,Auto" ColumnSpacing="12">
+                            <LucideIcon Kind="Terminal" Size="{StaticResource IconSizeLarge}" Foreground="{DynamicResource AppAccent}" />
+                            <StackPanel Grid.Column="1" Spacing="4">
+                                <TextBlock Text="终端" FontWeight="Medium" /><TextBlock Text="在手机上运行 Shell 命令" Classes="muted" FontSize="12" />
+                            </StackPanel>
+                            <LucideIcon Grid.Column="2" Kind="ChevronRight" Size="{StaticResource IconSizeNormal}"
+                                        Foreground="{DynamicResource AppTertiaryForeground}" VerticalAlignment="Center" />
+                        </Grid>
+                    </Button>
+                </StackPanel>
+                <StackPanel x:Name="ConnectionMethods" Spacing="20" IsVisible="{Binding !IsConnected}">
+                    <StackPanel x:Name="UsbConnection" Spacing="8">
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                            <TextBlock Text="USB 设备" FontSize="17" FontWeight="SemiBold" VerticalAlignment="Center" />
+                            <Button Grid.Column="1" Content="重新查找" Command="{Binding RefreshUsbDevicesCommand}" FontSize="12" Padding="8,8" />
+                        </Grid>
+                        <TextBlock Text="{Binding UsbDiscoveryStatus}" Classes="muted" TextWrapping="Wrap" />
+                        <ItemsControl x:Name="UsbDeviceCards" ItemsSource="{Binding UsbDevices}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Spacing="8" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:UsbDeviceViewModel">
+                                    <Button Classes="nearbyDevice" Command="{Binding ConnectCommand}" CommandParameter="{Binding}"
+                                            IsEnabled="{Binding IsAvailable}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                                            Padding="16" Background="{DynamicResource AppSurface}" AutomationProperties.Name="{Binding Name}">
+                                        <Button.ContextFlyout>
+                                            <fa:FAMenuFlyout>
+                                                <fa:FAMenuFlyoutItem Text="重新配对" Command="{Binding RePairCommand}" CommandParameter="{Binding}" />
+                                            </fa:FAMenuFlyout>
+                                        </Button.ContextFlyout>
+                                        <Grid ColumnDefinitions="24,*" ColumnSpacing="12">
+                                            <LucideIcon Kind="Usb" Size="{StaticResource IconSizeLarge}" Foreground="{DynamicResource AppAccent}" />
+                                            <StackPanel Grid.Column="1" Spacing="4">
+                                                <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                                                <TextBlock Text="{Binding Serial}" Classes="muted" FontSize="11" TextTrimming="CharacterEllipsis" />
+                                                <TextBlock Text="{Binding ConnectionHint}" Classes="muted" FontSize="11" TextWrapping="Wrap" />
+                                            </StackPanel>
+                                        </Grid>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                    <StackPanel x:Name="NearbyConnection" Spacing="8">
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                            <TextBlock Text="附近设备" FontSize="17" FontWeight="SemiBold" VerticalAlignment="Center" />
+                            <Button Grid.Column="1" Content="重新查找" Command="{Binding RefreshDiscoveryCommand}" FontSize="12" Padding="8,8" />
+                        </Grid>
+                        <TextBlock Text="{Binding DiscoveryStatus}" Classes="muted" TextWrapping="Wrap" />
+                        <ItemsControl x:Name="NearbyDeviceCards" ItemsSource="{Binding NearbyDevices}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Spacing="8" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:NearbyDeviceViewModel">
+                                    <Button Classes="nearbyDevice" Command="{Binding ConnectCommand}" CommandParameter="{Binding}"
+                                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Padding="16"
+                                            Background="{DynamicResource AppSurface}" AutomationProperties.Name="{Binding Name}">
+                                        <Button.ContextFlyout>
+                                            <fa:FAMenuFlyout>
+                                                <fa:FAMenuFlyoutItem Text="重新配对" Command="{Binding RePairCommand}" CommandParameter="{Binding}" />
+                                            </fa:FAMenuFlyout>
+                                        </Button.ContextFlyout>
+                                        <Grid ColumnDefinitions="24,*,Auto" ColumnSpacing="12">
+                                            <LucideIcon Kind="Smartphone" Size="{StaticResource IconSizeLarge}"
+                                                        Foreground="{DynamicResource AppAccent}" />
+                                            <StackPanel Grid.Column="1" Spacing="4">
+                                                <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"
+                                                           ToolTip.Tip="{Binding Name}" />
+                                                <TextBlock Text="{Binding Addresses}" Classes="muted" FontSize="11" TextTrimming="CharacterEllipsis" />
+                                                <TextBlock Text="{Binding ConnectionHint}" Classes="muted" FontSize="11" />
+                                            </StackPanel>
+                                            <LucideIcon Grid.Column="2" Kind="ChevronRight" Size="{StaticResource IconSizeNormal}"
+                                                        Foreground="{DynamicResource AppTertiaryForeground}" VerticalAlignment="Center" />
+                                        </Grid>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                    <Border x:Name="WifiConnection" Classes="card" Padding="16">
+                        <StackPanel Spacing="16">
+                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                                <LucideIcon Kind="Wifi" Size="{StaticResource IconSizeLarge}"
+                                            Foreground="{DynamicResource AppSecondaryForeground}" VerticalAlignment="Center" />
+                                <StackPanel Grid.Column="1" Spacing="4">
+                                    <TextBlock Text="Wi-Fi 连接" FontSize="17" FontWeight="SemiBold" />
+                                    <TextBlock Text="通过二维码或 IP 地址连接" Classes="muted" TextWrapping="Wrap" />
+                                </StackPanel>
+                            </Grid>
+                            <Border Classes="segmentedSelector">
+                                <Grid ColumnDefinitions="*,*">
+                                    <Button x:Name="QrConnectionButton" Content="二维码" Classes="page"
+                                            Classes.selected="{Binding IsQrConnection}" Command="{Binding ShowQrConnectionCommand}"
+                                            HorizontalContentAlignment="Center" />
+                                    <Button x:Name="IpConnectionButton" Grid.Column="1" Content="IP 地址" Classes="page"
+                                            Classes.selected="{Binding IsIpConnection}" Command="{Binding ShowIpConnectionCommand}"
+                                            HorizontalContentAlignment="Center" />
+                                </Grid>
+                            </Border>
+                            <StackPanel x:Name="QrConnection" Spacing="12" IsVisible="{Binding IsQrConnection}">
+                                <TextBlock Text="1. 连接手机和电脑到同一局域网" Classes="muted" TextWrapping="Wrap" />
+                                <TextBlock Text="2. 在手机上前往 开发者选项 > 无线调试 > 使用二维码配对设备" Classes="muted" TextWrapping="Wrap" />
+                                <TextBlock Text="3. 扫描下方二维码，保持此页面开启直到设备连接成功" Classes="muted" TextWrapping="Wrap" />
+                                <Viewbox MaxWidth="240" HorizontalAlignment="Center" StretchDirection="DownOnly" IsVisible="{Binding HasQrCode}">
+                                    <qr:QrCode x:Name="PairingQrCode" Data="{Binding PairingQrData}" Width="240" Height="240"
+                                               Background="{DynamicResource QrBackground}" Foreground="{DynamicResource QrForeground}"
+                                               IsQuietZoneEnabled="True" AutomationProperties.Name="无线调试配对二维码" />
+                                </Viewbox>
+                                <TextBlock x:Name="QrPairingStatus" Text="{Binding QrPairingStatus}" TextWrapping="Wrap"
+                                           Foreground="{DynamicResource AppAccent}" FontWeight="SemiBold" TextAlignment="Center" />
+                                <Button x:Name="RegenerateQrButton" Content="重新生成二维码" Command="{Binding RegeneratePairingQrCommand}"
+                                        IsEnabled="{Binding CanSelectNearbyDevice}" HorizontalAlignment="Center" />
+                            </StackPanel>
+                            <StackPanel x:Name="ManualConnection" Spacing="8" IsVisible="{Binding IsIpConnection}">
+                                <TextBlock Text="输入手机 IP 地址，无需端口。程序会先查找 AndroMeld 服务；服务未启动时自动尝试无线调试。"
+                                           Classes="muted" TextWrapping="Wrap" />
+                                <TextBox x:Name="AddressBox" Text="{Binding Address}" IsEnabled="{Binding CanSelectNearbyDevice}"
+                                         PlaceholderText="192.168.1.7" />
+                                <TextBlock Text="无线调试首次使用需在手机上配对：打开开发者选项中的“无线调试”，选择“使用配对码配对设备”。"
+                                           Classes="muted" TextWrapping="Wrap" />
+                                <Button x:Name="ManualConnectButton" Content="连接此 IP" Classes="primary" Command="{Binding ConnectCommand}"
+                                        HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
+                                <Button Content="重新配对" Command="{Binding RePairCommand}" Background="Transparent" FontSize="12" Padding="8,4"
+                                        HorizontalAlignment="Center" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                    <Border x:Name="CodeConnection" Classes="card" Padding="16" IsVisible="False">
+                        <StackPanel Spacing="8">
+                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                <TextBlock Text="连接码" FontSize="17" FontWeight="SemiBold" />
+                                <Border Grid.Column="1" Background="{DynamicResource AppBadgeBackground}" CornerRadius="5" Padding="8,4"
+                                        VerticalAlignment="Center">
+                                    <TextBlock Text="暂未支持" Classes="muted" FontSize="11" />
+                                </Border>
+                            </Grid>
+                            <TextBlock Text="输入手机显示的连接码连接设备。此连接方式暂未支持。" Classes="muted" TextWrapping="Wrap" />
+                            <TextBox x:Name="ConnectionCodeBox" Text="{Binding Code}" IsEnabled="False" PlaceholderText="XXXX-XXXX-XXXX" />
+                            <Button x:Name="CodeConnectButton" Content="使用连接码连接" IsEnabled="False" HorizontalAlignment="Stretch"
+                                    HorizontalContentAlignment="Center" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </StackPanel>
+        </ScrollViewer>
+        <StackPanel Grid.Row="3" Spacing="8" Margin="0,20,0,0">
+            <TextBlock Text="{Binding UsbConnectionNoticeText}" IsVisible="{Binding HasUsbConnectionNotice}" TextWrapping="Wrap" Classes="muted" />
+            <StackPanel IsVisible="{Binding IsConnecting}" Spacing="8">
+                <TextBlock x:Name="ConnectionStageText" Text="{Binding Status}" TextWrapping="Wrap" Classes="muted" />
+                <ProgressBar x:Name="ConnectionProgressBar" IsIndeterminate="{Binding IsUsbProgressIndeterminate}"
+                             Value="{Binding UsbProgressPercent}" Minimum="0" Maximum="100" Height="3" />
+            </StackPanel>
+            <StackPanel x:Name="WirelessPairing" IsVisible="{Binding IsWaitingForWirelessPairing}" Spacing="8">
+                <TextBlock Text="无线调试配对" FontWeight="SemiBold" />
+                <TextBlock Text="在手机上打开“无线调试 → 使用配对码配对设备”，保持该窗口开启，然后输入手机显示的 6 位配对码。"
+                           Classes="muted" TextWrapping="Wrap" />
+                <TextBox x:Name="WirelessPairingCodeBox" Text="{Binding WirelessPairingCode}" MaxLength="6"
+                         PlaceholderText="6 位配对码" AutomationProperties.Name="无线调试配对码" />
+                <Button x:Name="WirelessPairingButton" Content="配对并连接" Classes="primary"
+                        Command="{Binding SubmitWirelessPairingCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
+            </StackPanel>
+            <Button x:Name="UsbPrivacyContinueButton" Content="已完成，继续" Command="{Binding ContinueUsbPrivacyCommand}"
+                    IsVisible="{Binding IsWaitingForUsbPrivacy}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
+            <Button Content="取消连接" Command="{Binding CancelConnectCommand}" IsVisible="{Binding IsConnecting}" HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Center" />
+            <Button Content="断开连接" Command="{Binding DisconnectCommand}" IsVisible="{Binding IsConnected}" HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Center" />
+        </StackPanel>
+    </Grid>
+</UserControl>

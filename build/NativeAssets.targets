@@ -1,0 +1,18 @@
+<Project>
+  <!-- NativeAssetDirectory follows NuGet's runtimes/RID/native layout. -->
+  <PropertyGroup>
+    <IsRidAgnostic>false</IsRidAgnostic>
+  </PropertyGroup>
+  <Target Name="IncludeNativeAssets" BeforeTargets="AssignTargetPaths"
+          Condition="'@(NativeAssetDirectory)' != '' and '$(DesignTimeBuild)' != 'true'">
+    <ItemGroup>
+      <_NativeAssetFiles Include="%(NativeAssetDirectory.Identity)/*/native/**/*" Condition="'$(RuntimeIdentifier)' == ''" />
+      <_NativeAssetFiles Include="%(NativeAssetDirectory.Identity)/$(RuntimeIdentifier)/native/**/*" Condition="'$(RuntimeIdentifier)' != ''" />
+      <Content Include="@(_NativeAssetFiles)"
+               CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" ExcludeFromSingleFile="true">
+        <Link Condition="'$(RuntimeIdentifier)' == ''">runtimes/%(_NativeAssetFiles.RecursiveDir)%(_NativeAssetFiles.Filename)%(_NativeAssetFiles.Extension)</Link>
+        <Link Condition="'$(RuntimeIdentifier)' != ''">%(_NativeAssetFiles.Filename)%(_NativeAssetFiles.Extension)</Link>
+      </Content>
+    </ItemGroup>
+  </Target>
+</Project>

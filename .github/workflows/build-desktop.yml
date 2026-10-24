@@ -1,0 +1,220 @@
+name: Build Desktop
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/build-desktop.yml
+      - src/**
+      - build/**
+      - tools/build-ffmpeg-*.sh
+      - tools/build-appimage.sh
+      - global.json
+      - .editorconfig
+      - .gitattributes
+  pull_request:
+    paths:
+      - .github/workflows/build-desktop.yml
+      - src/**
+      - build/**
+      - tools/build-ffmpeg-*.sh
+      - tools/build-appimage.sh
+      - global.json
+      - .editorconfig
+      - .gitattributes
+
+permissions:
+  contents: read
+
+env:
+  FFMPEG_SOURCE_URL: https://github.com/FFmpeg/FFmpeg/archive/refs/tags/n9.0.1.zip
+
+jobs:
+  linux:
+    name: Linux x64
+    runs-on: ubuntu-26.04
+    timeout-minutes: 60
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential binutils clang lld llvm nasm python3 curl unzip xz-utils \
+            ca-certificates debootstrap ubuntu-keyring desktop-file-utils
+
+      - name: Restore sysroot archive
+        uses: actions/cache@v4
+        with:
+          path: artifacts/sysroots/ubuntu-22.04-x86_64.tar.xz
+          key: linux-sysroot-jammy-amd64-v1-${{ hashFiles('build/linux-sysroot/build-linux-sysroot.sh') }}
+
+      - name: Prepare Ubuntu 22.04 sysroot
+        run: |
+          build_sysroot() {
+            local codename="$1"
+            local path="$2"
+
+            if [[ -f "$path.tar.xz" ]]; then
+              return
+            fi
+
+            sudo rm -rf -- "$path"
+            sudo env \
+              UBUNTU_CODENAME="$codename" \
+              bash build/linux-sysroot/build-linux-sysroot.sh "$path"
+            sudo tar -C "$path" \
+              --exclude=./dev \
+              --exclude=./proc \
+              --exclude=./sys \
+              --exclude=./run \
+              --exclude=./tmp \
+              --exclude=./var/tmp \
+              -cJf "$path.tar.xz" .
+            sudo chown "$(id -u):$(id -g)" "$path.tar.xz"
+            sudo rm -rf -- "$path"
+            sudo chown -R "$(id -u):$(id -g)" "$(dirname -- "$path")"
+          }
+
+          sysroot=artifacts/sysroots/ubuntu-22.04-x86_64
+          build_sysroot jammy "$sysroot"
+          mkdir -p -- "$sysroot"
+          tar -xJf "$sysroot.tar.xz" -C "$sysroot"
+
+      - name: Download FFmpeg source
+        run: |
+          mkdir -p artifacts/sources
+          curl --fail --location --show-error --retry 3 "$FFMPEG_SOURCE_URL" \
+            --output artifacts/sources/FFmpeg-n9.0.1.zip
+
+      - name: Cross compile FFmpeg
+        run: |
+          bash tools/build-ffmpeg-linux.sh artifacts/sources/FFmpeg-n9.0.1.zip \
+            artifacts/sysroots/ubuntu-22.04-x86_64 "$RUNNER_TEMP/ffmpeg-linux"
+
+      - name: Package Linux libraries
+        run: |
+          package_dir=artifacts/ffmpeg/9.0.1
+          mkdir -p "$package_dir/linux-x64/native" "$package_dir/licenses/ffmpeg"
+          cp -P -- "$RUNNER_TEMP/ffmpeg-linux/lib/"libavcodec.so* \
+            "$RUNNER_TEMP/ffmpeg-linux/lib/"libavutil.so* \
+            "$RUNNER_TEMP/ffmpeg-linux/lib/"libswscale.so* "$package_dir/linux-x64/native/"
+          cp -- "$RUNNER_TEMP/ffmpeg-linux/share/licenses/ffmpeg/"* "$package_dir/licenses/ffmpeg/"
+          printf '%s\n' "$FFMPEG_SOURCE_URL" > "$package_dir/licenses/ffmpeg/source.url"
+          # Preserve the soname symlinks through artifact upload/download.
+          tar -cJf artifacts/ffmpeg-9.0.1-linux-x64.tar.xz -C "$package_dir" linux-x64 licenses
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ffmpeg-9.0.1-linux-x64
+          path: artifacts/ffmpeg-9.0.1-linux-x64.tar.xz
+          if-no-files-found: error
+          compression-level: 0
+
+      - name: Set up .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Publish Linux AppImage
+        run: sh tools/build-appimage.sh
+
+      - name: Package Linux desktop
+        run: |
+          # Preserve the AppImage executable bit through artifact upload/download.
+          tar -cJf artifacts/AndroMeld-linux-x64.tar.xz \
+            -C artifacts/appimage AndroMeld-x86_64.AppImage
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: AndroMeld-linux-x64
+          path: artifacts/AndroMeld-linux-x64.tar.xz
+          if-no-files-found: error
+          compression-level: 0
+
+  windows:
+    name: Windows x64
+    runs-on: windows-2022
+    timeout-minutes: 60
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up MSYS2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          install: >-
+            make
+            diffutils
+            curl
+            unzip
+            mingw-w64-ucrt-x86_64-gcc
+            mingw-w64-ucrt-x86_64-binutils
+            mingw-w64-ucrt-x86_64-nasm
+
+      - name: Download FFmpeg source
+        run: |
+          mkdir -p artifacts/sources
+          curl --fail --location --show-error --retry 3 "$FFMPEG_SOURCE_URL" \
+            --output artifacts/sources/FFmpeg-n9.0.1.zip
+
+      - name: Compile FFmpeg
+        run: |
+          bash tools/build-ffmpeg-windows.sh artifacts/sources/FFmpeg-n9.0.1.zip \
+            "$(cygpath -u "$RUNNER_TEMP")/ffmpeg-windows"
+
+      - name: Stage Windows libraries
+        run: |
+          prefix="$(cygpath -u "$RUNNER_TEMP")/ffmpeg-windows"
+          package_dir=artifacts/ffmpeg/9.0.1
+          mkdir -p "$package_dir/runtimes/win-x64/native" "$package_dir/licenses/ffmpeg"
+          cp -- "$prefix/bin/avcodec-63.dll" "$prefix/bin/avutil-61.dll" \
+            "$prefix/bin/swscale-10.dll" "$package_dir/runtimes/win-x64/native/"
+          cp -- "$prefix/share/licenses/ffmpeg/"* "$package_dir/licenses/ffmpeg/"
+          printf '%s\n' "$FFMPEG_SOURCE_URL" > "$package_dir/licenses/ffmpeg/source.url"
+
+      - name: Package Windows libraries
+        shell: pwsh
+        run: |
+          Compress-Archive -Path artifacts/ffmpeg/9.0.1/runtimes,artifacts/ffmpeg/9.0.1/licenses `
+            -DestinationPath artifacts/ffmpeg-9.0.1-win-x64.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ffmpeg-9.0.1-win-x64
+          path: artifacts/ffmpeg-9.0.1-win-x64.zip
+          if-no-files-found: error
+          compression-level: 0
+
+      - name: Set up .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Publish Windows desktop
+        shell: pwsh
+        run: |
+          dotnet publish src/Andromeld.Desktop/Andromeld.Desktop.csproj `
+            --configuration Release --runtime win-x64 --self-contained true `
+            --output artifacts/publish/win-x64
+
+      - name: Package Windows desktop
+        shell: pwsh
+        run: |
+          Compress-Archive -Path artifacts/publish/win-x64/* `
+            -DestinationPath artifacts/AndroMeld-win-x64.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: AndroMeld-win-x64
+          path: artifacts/AndroMeld-win-x64.zip
+          if-no-files-found: error
+          compression-level: 0

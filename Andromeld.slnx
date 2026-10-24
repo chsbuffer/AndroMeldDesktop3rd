@@ -1,0 +1,21 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Andromeld.Desktop/Andromeld.Desktop.csproj" />
+    <Project Path="src/Andromeld.Protocol/Andromeld.Protocol.csproj" />
+    <Project Path="src/Andromeld.Packages/Andromeld.Packages.csproj" />
+    <Project Path="src/Andromeld.Media/Andromeld.Media.csproj" />
+    <Project Path="src/Andromeld.Discovery/Andromeld.Discovery.csproj" />
+    <Project Path="src/Andromeld.Cache/Andromeld.Cache.csproj" />
+    <Project Path="src/Andromeld.Platform.Windows/Andromeld.Platform.Windows.csproj" />
+    <Project Path="src/Andromeld.Platform.Linux/Andromeld.Platform.Linux.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Andromeld.Desktop.Tests/Andromeld.Desktop.Tests.csproj" />
+    <Project Path="tests/Andromeld.Platform.Linux.Tests/Andromeld.Platform.Linux.Tests.csproj" />
+    <Project Path="tests/Andromeld.Protocol.Tests/Andromeld.Protocol.Tests.csproj" />
+    <Project Path="tests/Andromeld.Packages.Tests/Andromeld.Packages.Tests.csproj" />
+    <Project Path="tests/Andromeld.Media.Tests/Andromeld.Media.Tests.csproj" />
+    <Project Path="tests/Andromeld.Discovery.Tests/Andromeld.Discovery.Tests.csproj" />
+    <Project Path="tests/Andromeld.Cache.Tests/Andromeld.Cache.Tests.csproj" />
+  </Folder>
+</Solution>

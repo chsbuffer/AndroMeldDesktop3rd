@@ -1,0 +1,76 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <x:Double x:Key="IconSizeSmall">12</x:Double>
+    <x:Double x:Key="IconSizeCompact">16</x:Double>
+    <x:Double x:Key="IconSizeNormal">20</x:Double>
+    <x:Double x:Key="IconSizeLarge">24</x:Double>
+    <x:Double x:Key="IconSizeFileTile">40</x:Double>
+    <x:Double x:Key="AppTileHeight">116</x:Double>
+    <SolidColorBrush x:Key="QrBackground">White</SolidColorBrush>
+    <SolidColorBrush x:Key="QrForeground">Black</SolidColorBrush>
+    <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Light">
+            <SolidColorBrush x:Key="AppBackground">#F5F5F7</SolidColorBrush>
+            <SolidColorBrush x:Key="AppForeground">#252529</SolidColorBrush>
+            <SolidColorBrush x:Key="AppSecondaryForeground">#6C6C73</SolidColorBrush>
+            <SolidColorBrush x:Key="AppTertiaryForeground">#8C8C93</SolidColorBrush>
+            <SolidColorBrush x:Key="AppControlBackground">#E8E8EB</SolidColorBrush>
+            <SolidColorBrush x:Key="AppControlHover">#DDDEE3</SolidColorBrush>
+            <SolidColorBrush x:Key="AppControlPressed">#D1D2D8</SolidColorBrush>
+            <SolidColorBrush x:Key="AppControlDisabled">#ECECEF</SolidColorBrush>
+            <SolidColorBrush x:Key="AppDisabledForeground">#92929A</SolidColorBrush>
+            <SolidColorBrush x:Key="AppSurface">#FFFFFF</SolidColorBrush>
+            <SolidColorBrush x:Key="AppSurfaceHover">#EEEEF2</SolidColorBrush>
+            <SolidColorBrush x:Key="AppSelectionBackground">#E8F1FC</SolidColorBrush>
+            <SolidColorBrush x:Key="AppPlaceholderBackground">#EEEEF4</SolidColorBrush>
+            <SolidColorBrush x:Key="AppAccent">#0866D9</SolidColorBrush>
+            <SolidColorBrush x:Key="AppAccentHover">#075ABD</SolidColorBrush>
+            <SolidColorBrush x:Key="AppAccentPressed">#064C9F</SolidColorBrush>
+            <SolidColorBrush x:Key="AppAccentForeground">#FFFFFF</SolidColorBrush>
+            <SolidColorBrush x:Key="AppErrorBackground">#FFF0F0</SolidColorBrush>
+            <SolidColorBrush x:Key="AppErrorForeground">#A83844</SolidColorBrush>
+            <SolidColorBrush x:Key="AppSuccessForeground">#287A43</SolidColorBrush>
+            <SolidColorBrush x:Key="AppSuccessBackground">#E5F3E9</SolidColorBrush>
+            <SolidColorBrush x:Key="AppBadgeBackground">#F0F0F2</SolidColorBrush>
+            <SolidColorBrush x:Key="AppDivider">#E8E8EC</SolidColorBrush>
+            <SolidColorBrush x:Key="AppStorageFill">#9B9BA3</SolidColorBrush>
+            <SolidColorBrush x:Key="AppBorder">#D8D9DE</SolidColorBrush>
+            <SolidColorBrush x:Key="AppFileIcon">#7B879B</SolidColorBrush>
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="Dark">
+            <SolidColorBrush x:Key="AppBackground">#17191E</SolidColorBrush>
+            <SolidColorBrush x:Key="AppForeground">#F5F5F7</SolidColorBrush>
+            <SolidColorBrush x:Key="AppSecondaryForeground">#B4B5BE</SolidColorBrush>
+            <SolidColorBrush x:Key="AppTertiaryForeground">#9798A3</SolidColorBrush>
+            <SolidColorBrush x:Key="AppControlBackground">#2B2D35</SolidColorBrush>
+            <SolidColorBrush x:Key="AppControlHover">#383B46</SolidColorBrush>
+            <SolidColorBrush x:Key="AppControlPressed">#454955</SolidColorBrush>
+            <SolidColorBrush x:Key="AppControlDisabled">#252730</SolidColorBrush>
+            <SolidColorBrush x:Key="AppDisabledForeground">#6E707D</SolidColorBrush>
+            <SolidColorBrush x:Key="AppSurface">#20222A</SolidColorBrush>
+            <SolidColorBrush x:Key="AppSurfaceHover">#292C35</SolidColorBrush>
+            <SolidColorBrush x:Key="AppSelectionBackground">#173C65</SolidColorBrush>
+            <SolidColorBrush x:Key="AppPlaceholderBackground">#2C2D38</SolidColorBrush>
+            <SolidColorBrush x:Key="AppAccent">#6CB0FF</SolidColorBrush>
+            <SolidColorBrush x:Key="AppAccentHover">#91C4FF</SolidColorBrush>
+            <SolidColorBrush x:Key="AppAccentPressed">#B3D6FF</SolidColorBrush>
+            <SolidColorBrush x:Key="AppAccentForeground">#092546</SolidColorBrush>
+            <SolidColorBrush x:Key="AppErrorBackground">#402329</SolidColorBrush>
+            <SolidColorBrush x:Key="AppErrorForeground">#FFB4BC</SolidColorBrush>
+            <SolidColorBrush x:Key="AppSuccessForeground">#82D79B</SolidColorBrush>
+            <SolidColorBrush x:Key="AppSuccessBackground">#193E29</SolidColorBrush>
+            <SolidColorBrush x:Key="AppBadgeBackground">#2B2D35</SolidColorBrush>
+            <SolidColorBrush x:Key="AppDivider">#353741</SolidColorBrush>
+            <SolidColorBrush x:Key="AppStorageFill">#818696</SolidColorBrush>
+            <SolidColorBrush x:Key="AppBorder">#454752</SolidColorBrush>
+            <SolidColorBrush x:Key="AppFileIcon">#A3AFC4</SolidColorBrush>
+        </ResourceDictionary>
+    </ResourceDictionary.ThemeDictionaries>
+    <SolidColorBrush x:Key="VideoBackground">#F5F5F7</SolidColorBrush>
+    <SolidColorBrush x:Key="TerminalBackground">#17191E</SolidColorBrush>
+    <SolidColorBrush x:Key="TerminalForeground">#E5E7EB</SolidColorBrush>
+    <SolidColorBrush x:Key="TerminalStatusForeground">#D1D5DB</SolidColorBrush>
+    <SolidColorBrush x:Key="MirrorCloseForeground">#FFFFFF</SolidColorBrush>
+    <SolidColorBrush x:Key="MirrorCloseHover">#CCE81123</SolidColorBrush>
+    <SolidColorBrush x:Key="MirrorClosePressed">#CCC50F1F</SolidColorBrush>
+    <BoxShadows x:Key="MirrorFrameShadow">0 2 10 2 #40000000</BoxShadows>
+</ResourceDictionary>

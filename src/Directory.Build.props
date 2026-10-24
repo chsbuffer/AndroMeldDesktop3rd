@@ -1,0 +1,20 @@
+<Project>
+  <PropertyGroup>
+    <AnalysisLevel>latest-Recommended</AnalysisLevel>
+    <!-- MA0016/MA0046: JSON models and event delegate signatures are intentional.
+         MA0051: existing long UI/protocol flows are not split in this cleanup.
+         RCS1075: empty catches are deliberate in best-effort teardown paths.
+         PSH1310: in-memory streams use synchronous Dispose, not DisposeAsync.
+         S6640: unsafe blocks are required for native interop. -->
+    <NoWarn>$(NoWarn);MA0016;MA0046;MA0051;RCS1075;PSH1310;S6640;</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="PerformanceSharp.Analyzers" Version="5.1.4" PrivateAssets="all"/>
+    <PackageReference Include="SecuritySharp.Analyzers" Version="5.1.4" PrivateAssets="all"/>
+    <PackageReference Include="Roslynator.Analyzers" Version="5.0.1" PrivateAssets="all"/>
+    <PackageReference Include="SonarAnalyzer.CSharp" Version="10.35.0.4138" PrivateAssets="all"/>
+    <PackageReference Include="Meziantou.Analyzer" Version="3.0.312" PrivateAssets="all"/>
+  </ItemGroup>
+
+</Project>

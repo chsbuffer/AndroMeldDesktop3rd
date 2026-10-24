@@ -1,0 +1,31 @@
+<Project>
+  <PropertyGroup>
+    <AdbVersion>37.0.1</AdbVersion>
+    <AdbCacheDirectory Condition="'$(AdbCacheDirectory)' == ''">$(MSBuildThisFileDirectory)../artifacts/adb/$(AdbVersion)</AdbCacheDirectory>
+  </PropertyGroup>
+  <ItemGroup>
+    <_AdbPackage Include="win-x64" Platform="win" Condition="'$(RuntimeIdentifier)' == '' or '$(RuntimeIdentifier)' == 'win-x64'" />
+    <_AdbPackage Include="linux-x64" Platform="linux" Condition="'$(RuntimeIdentifier)' == '' or '$(RuntimeIdentifier)' == 'linux-x64'" />
+    <NativeAssetDirectory Include="$(AdbCacheDirectory)/runtimes" />
+  </ItemGroup>
+
+  <Target Name="PrepareAdb" BeforeTargets="IncludeNativeAssets"
+          Condition="'@(_AdbPackage)' != '' and '$(DesignTimeBuild)' != 'true'">
+    <MakeDir Directories="$(AdbCacheDirectory)" />
+    <DownloadFile SourceUrl="https://dl.google.com/android/repository/platform-tools_r$(AdbVersion)-%(_AdbPackage.Platform).zip"
+                  DestinationFolder="$(AdbCacheDirectory)" DestinationFileName="platform-tools_r$(AdbVersion)-%(_AdbPackage.Platform).zip"
+                  Retries="2" Condition="!Exists('$(AdbCacheDirectory)/platform-tools_r$(AdbVersion)-%(_AdbPackage.Platform).zip')" />
+    <Unzip SourceFiles="$(AdbCacheDirectory)/platform-tools_r$(AdbVersion)-%(_AdbPackage.Platform).zip"
+           DestinationFolder="$(AdbCacheDirectory)/%(_AdbPackage.Identity)" SkipUnchangedFiles="true" />
+    <ItemGroup>
+      <_AdbFiles Include="$(AdbCacheDirectory)/win-x64/platform-tools/adb.exe;$(AdbCacheDirectory)/win-x64/platform-tools/AdbWinApi.dll;$(AdbCacheDirectory)/win-x64/platform-tools/AdbWinUsbApi.dll"
+                 Rid="win-x64" Condition="'$(RuntimeIdentifier)' == '' or '$(RuntimeIdentifier)' == 'win-x64'" />
+      <_AdbFiles Include="$(AdbCacheDirectory)/linux-x64/platform-tools/adb"
+                 Rid="linux-x64" Condition="'$(RuntimeIdentifier)' == '' or '$(RuntimeIdentifier)' == 'linux-x64'" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_AdbFiles)" DestinationFiles="@(_AdbFiles->'$(AdbCacheDirectory)/runtimes/%(Rid)/native/%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+    <!-- MSBuild Unzip does not preserve the Linux executable bit. Copy keeps the source mode. -->
+    <Exec Command="chmod +x &quot;$(AdbCacheDirectory)/runtimes/linux-x64/native/adb&quot;"
+          Condition="'$(OS)' != 'Windows_NT' and ('$(RuntimeIdentifier)' == '' or '$(RuntimeIdentifier)' == 'linux-x64')" />
+  </Target>
+</Project>

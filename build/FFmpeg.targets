@@ -1,0 +1,20 @@
+<Project>
+  <PropertyGroup>
+    <!-- Keep this release aligned with FFmpeg.AutoGen in Andromeld.Media. -->
+    <FFmpegVersion>9.0.1</FFmpegVersion>
+    <FFmpegCacheDirectory Condition="'$(FFmpegCacheDirectory)' == ''">$(MSBuildThisFileDirectory)../artifacts/ffmpeg/$(FFmpegVersion)</FFmpegCacheDirectory>
+    <_FFmpegRuntimeIdentifier>$(RuntimeIdentifier)</_FFmpegRuntimeIdentifier>
+    <_FFmpegRuntimeIdentifier Condition="'$(_FFmpegRuntimeIdentifier)' == ''">$(NETCoreSdkRuntimeIdentifier)</_FFmpegRuntimeIdentifier>
+    <_FFmpegUseSystemLibraries Condition="$([System.String]::Copy('$(_FFmpegRuntimeIdentifier)').StartsWith('linux-'))">true</_FFmpegUseSystemLibraries>
+  </PropertyGroup>
+
+  <!-- Linux uses installed shared libraries; other targets use local native assets. -->
+  <ItemGroup Condition="'$(_FFmpegUseSystemLibraries)' != 'true'">
+    <NativeAssetDirectory Include="$(FFmpegCacheDirectory)/runtimes" />
+    <Content Include="$(FFmpegCacheDirectory)/licenses/ffmpeg/*"
+             CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" ExcludeFromSingleFile="true">
+      <Link>licenses/ffmpeg/%(Filename)%(Extension)</Link>
+    </Content>
+  </ItemGroup>
+  <Import Project="NativeAssets.targets" />
+</Project>

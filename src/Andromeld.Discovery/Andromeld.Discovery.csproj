@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="AdvancedSharpAdbClient" Version="3.6.16"/>
+    <PackageReference Include="Tmds.MDns" Version="0.10.1"/>
+    <ProjectReference Include="../Andromeld.Protocol/Andromeld.Protocol.csproj"/>
+    <InternalsVisibleTo Include="Andromeld.Discovery.Tests"/>
+  </ItemGroup>
+</Project>

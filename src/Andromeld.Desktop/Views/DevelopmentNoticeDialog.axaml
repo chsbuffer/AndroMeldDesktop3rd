@@ -1,0 +1,22 @@
+<fa:FAContentDialog xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:fa="using:FluentAvalonia.UI.Controls" xmlns:services="using:Andromeld.Desktop.Services"
+        x:Class="Andromeld.Desktop.Views.DevelopmentNoticeDialog"
+        Title="使用前请了解" PrimaryButtonText="我知道了" DefaultButton="Primary">
+  <ScrollViewer HorizontalScrollBarVisibility="Disabled" MaxHeight="400" Classes="pageScroll">
+    <StackPanel Spacing="16">
+      <StackPanel Spacing="8">
+        <TextBlock Text="开发中的非官方客户端" FontWeight="SemiBold" />
+        <TextBlock Text="AndroMeld Desktop 由 ChsBuffer 开发，目前仍在开发中，功能可能不完整或存在问题。这是独立的第三方客户端，并非 AndroMeld 官方产品。" TextWrapping="Wrap" />
+        <HyperlinkButton Content="AndroMeld 官网" NavigateUri="{x:Static services:ApplicationInfo.AndromeldWebsite}" HorizontalAlignment="Left" ToolTip.Tip="{x:Static services:ApplicationInfo.AndromeldWebsite}" />
+      </StackPanel>
+      <StackPanel Spacing="8">
+        <TextBlock Text="互联网传输" FontWeight="SemiBold" />
+        <TextBlock Text="本客户端没有遥测、日志上传、自动更新检查或公网中继服务。通过 USB 或无线调试连接设备时会访问 AndroMeld 官网检查 helper 版本，并在需要时下载、安装或升级手机上的 helper。" TextWrapping="Wrap" />
+      </StackPanel>
+      <StackPanel Spacing="8">
+        <TextBlock Text="本软件下载渠道" FontWeight="SemiBold" />
+        <HyperlinkButton Content="t.me/chsbuffer_channel" NavigateUri="{x:Static services:ApplicationInfo.DownloadChannel}" HorizontalAlignment="Left" ToolTip.Tip="{x:Static services:ApplicationInfo.DownloadChannel}" />
+      </StackPanel>
+    </StackPanel>
+  </ScrollViewer>
+</fa:FAContentDialog>

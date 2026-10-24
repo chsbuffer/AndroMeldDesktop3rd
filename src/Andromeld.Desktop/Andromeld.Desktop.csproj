@@ -1,0 +1,110 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\app_icon.ico</ApplicationIcon>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <!-- CA1001: Avalonia controls/windows release fields in detach/close lifecycle, not Dispose.
+         MA0147: async void is required by Avalonia event handlers.
+         PSH1011: low-frequency dispatcher posts; closure readability is intentional.
+         PSH1120: snapshots precede awaits that mutate the source collections.
+         PSH1315: OLE drag is synchronous by contract.
+         AVLN3001: parameterized windows are never loaded by the runtime XAML loader.
+         S1075: avares:// resource URIs are not filesystem paths.
+         S2094: ViewModelBase is the ReactiveObject marker base.
+         S3264: events are invoked through pattern locals, which the analyzer misses.
+         S8949: passing Lifetime at OnClosed throws when the model is already disposed. -->
+    <NoWarn>$(NoWarn);MA0004;CA1001;MA0147;PSH1011;PSH1120;PSH1315;AVLN3001;S1075;S2094;S3264;S8949</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(_IsPublishing)' == 'true'">
+    <PublishSelfContained>true</PublishSelfContained>
+    <PublishSingleFile>true</PublishSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>false</IncludeNativeLibrariesForSelfExtract>
+    <IncludeAllContentForSelfExtract>false</IncludeAllContentForSelfExtract>
+    <PublishTrimmed>true</PublishTrimmed>
+    <TrimMode>full</TrimMode>
+    <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+    <JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
+    <PublishAot>false</PublishAot>
+    <PublishReadyToRun>true</PublishReadyToRun>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AvaloniaResource Include="Assets\**"/>
+    <TrimmerRootAssembly Include="$(AssemblyName)"/>
+    <InternalsVisibleTo Include="Andromeld.Desktop.Tests"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Andromeld.Protocol/Andromeld.Protocol.csproj"/>
+    <ProjectReference Include="../Andromeld.Packages/Andromeld.Packages.csproj"/>
+    <ProjectReference Include="../Andromeld.Media/Andromeld.Media.csproj"/>
+    <ProjectReference Include="../Andromeld.Discovery/Andromeld.Discovery.csproj"/>
+    <ProjectReference Include="../Andromeld.Cache/Andromeld.Cache.csproj"/>
+    <ProjectReference Include="../Andromeld.Platform.Windows/Andromeld.Platform.Windows.csproj"/>
+    <ProjectReference Include="../Andromeld.Platform.Linux/Andromeld.Platform.Linux.csproj"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="12.1.4"/>
+    <PackageReference Include="Avalonia.Desktop" Version="12.1.4"/>
+    <PackageReference Include="Avalonia.Labs.Qr" Version="12.0.2"/>
+    <PackageReference Include="Avalonia.Labs.Notifications" Version="12.0.2"/>
+    <PackageReference Include="Tmds.DBus.Protocol" Version="0.94.1"/>
+    <PackageReference Include="ChsBuffer.Avalonia.AppHost" Version="12.0.1-skia4" PrivateAssets="all"/>
+    <PackageReference Include="FluentAvaloniaUI" Version="3.1.0"/>
+    <PackageReference Include="Lucide.Avalonia" Version="0.2.27"/>
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="12.1.4"/>
+    <PackageReference Include="Avalonia.Wayland" Version="12.1.4"/>
+    <PackageReference Include="AvaloniaUI.DiagnosticsSupport" Version="2.2.3">
+      <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
+      <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="ReactiveUI.Avalonia" Version="12.1.6"/>
+    <PackageReference Include="ReactiveUI.SourceGenerators" Version="4.2.0" PrivateAssets="all"/>
+    <PackageReference Include="Iciclecreek.Avalonia.Terminal" Version="4.1.0"/>
+    <PackageReference Include="SDL3-CS" Version="3.4.18"/>
+    <PackageReference Include="SDL3-CS.Linux" Version="3.4.18"/>
+    <PackageReference Include="SDL3-CS.Windows" Version="3.4.18"/>
+  </ItemGroup>
+
+  <Import Project="../../build/TrimmerRoots.props"/>
+  <Import Project="../../build/PrunePackages.props"/>
+  <Import Project="../../build/Adb.targets"/>
+  <Import Project="../../build/NativeAssets.targets"/>
+
+  <Target Name="ExcludeFilesFromPublish" AfterTargets="ComputeResolvedFilesToPublishList">
+    <ItemGroup>
+      <ResolvedFileToPublish Remove="@(ResolvedFileToPublish)" Condition="'%(Extension)' == '.pdb'"/>
+    </ItemGroup>
+  </Target>
+
+  <Target Name="ReadGitVersion" BeforeTargets="GetAssemblyAttributes">
+    <PropertyGroup>
+      <_GitDateFormat>%ct</_GitDateFormat>
+      <_GitDateFormat Condition="'$(OS)' == 'Windows_NT'">%%ct</_GitDateFormat>
+    </PropertyGroup>
+    <Exec Command="git -C &quot;$(MSBuildProjectDirectory)&quot; rev-parse --short=12 HEAD" Condition="'$(GitCommitHash)' == ''" ConsoleToMSBuild="true" IgnoreExitCode="true" StandardOutputImportance="Low" StandardErrorImportance="Low">
+      <Output TaskParameter="ConsoleOutput" PropertyName="GitCommitHash" />
+      <Output TaskParameter="ExitCode" PropertyName="GitHashExitCode" />
+    </Exec>
+    <Exec Command="git -C &quot;$(MSBuildProjectDirectory)&quot; log -1 --format=$(_GitDateFormat)" Condition="'$(GitCommitTimestamp)' == ''" ConsoleToMSBuild="true" IgnoreExitCode="true" StandardOutputImportance="Low" StandardErrorImportance="Low">
+      <Output TaskParameter="ConsoleOutput" PropertyName="GitCommitTimestamp" />
+      <Output TaskParameter="ExitCode" PropertyName="GitDateExitCode" />
+    </Exec>
+    <PropertyGroup>
+      <GitCommitHash Condition="'$(GitCommitHash)' == '' Or ('$(GitHashExitCode)' != '' And '$(GitHashExitCode)' != '0')">未知</GitCommitHash>
+      <GitCommitTimestamp Condition="'$(GitCommitTimestamp)' == '' Or ('$(GitDateExitCode)' != '' And '$(GitDateExitCode)' != '0')">未知</GitCommitTimestamp>
+    </PropertyGroup>
+    <ItemGroup>
+      <AssemblyMetadata Include="GitCommitHash" Value="$(GitCommitHash)" />
+      <AssemblyMetadata Include="GitCommitTimestamp" Value="$(GitCommitTimestamp)" />
+    </ItemGroup>
+  </Target>
+
+</Project>

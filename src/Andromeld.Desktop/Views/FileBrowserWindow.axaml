@@ -1,0 +1,391 @@
+<Window xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:vm="using:Andromeld.Desktop.ViewModels"
+        xmlns:controls="using:Andromeld.Desktop.Controls"
+        xmlns:fa="using:FluentAvalonia.UI.Controls" xmlns:p="clr-namespace:Andromeld.Protocol;assembly=Andromeld.Protocol"
+        x:Class="Andromeld.Desktop.Views.FileBrowserWindow" x:DataType="vm:FileBrowserViewModel" Classes="workspace"
+        Title="文件 · AndroMeld" Width="980" Height="720" MinWidth="560" MinHeight="420" WindowStartupLocation="CenterScreen">
+    <Window.Resources>
+        <ControlTheme x:Key="BreadcrumbButtonTheme" TargetType="Button">
+            <Setter Property="Padding" Value="6,0" />
+            <Setter Property="Height" Value="24" />
+            <Setter Property="MinHeight" Value="0" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="CornerRadius" Value="6" />
+            <Setter Property="Foreground" Value="{DynamicResource AppSecondaryForeground}" />
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <Border Name="PART_Border" Background="{TemplateBinding Background}" CornerRadius="{TemplateBinding CornerRadius}">
+                        <ContentPresenter Content="{TemplateBinding Content}" Padding="{TemplateBinding Padding}"
+                                          HorizontalContentAlignment="Center" VerticalContentAlignment="Center" />
+                    </Border>
+                </ControlTemplate>
+            </Setter>
+            <Style Selector="^:pointerover /template/ Border#PART_Border">
+                <Setter Property="Background" Value="{DynamicResource AppSurfaceHover}" />
+            </Style>
+            <Style Selector="^:pressed /template/ Border#PART_Border">
+                <Setter Property="Background" Value="{DynamicResource AppSelectionBackground}" />
+            </Style>
+            <Style Selector="^:disabled">
+                <Setter Property="Foreground" Value="{DynamicResource AppForeground}" />
+            </Style>
+        </ControlTheme>
+        <ControlTheme x:Key="FileViewToggleTheme" TargetType="RadioButton">
+            <Setter Property="Width" Value="30" />
+            <Setter Property="Height" Value="30" />
+            <Setter Property="Padding" Value="5" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="6" />
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <Border Name="PART_Border" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="{TemplateBinding CornerRadius}">
+                        <ContentPresenter Content="{TemplateBinding Content}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" />
+                    </Border>
+                </ControlTemplate>
+            </Setter>
+            <Style Selector="^:pointerover /template/ Border#PART_Border">
+                <Setter Property="Background" Value="{DynamicResource AppSurfaceHover}" />
+            </Style>
+            <Style Selector="^:checked /template/ Border#PART_Border">
+                <Setter Property="Background" Value="{DynamicResource AppSelectionBackground}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource AppAccent}" />
+            </Style>
+        </ControlTheme>
+        <DataTemplate x:Key="FileDetailsTemplate" x:DataType="vm:FileBrowserItem">
+            <Grid ToolTip.Tip="{Binding Path}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" SharedSizeGroup="FileSize" />
+                    <ColumnDefinition Width="Auto" SharedSizeGroup="FileModified" />
+                </Grid.ColumnDefinitions>
+                <Grid ColumnDefinitions="Auto,Auto,*" VerticalAlignment="Center" Margin="0,0,12,0">
+                    <StackPanel Orientation="Horizontal" IsVisible="{Binding $parent[Window].((vm:FileBrowserViewModel)DataContext).IsTreeView}">
+                        <Border Width="{Binding Indent}" />
+                        <Grid MinWidth="28">
+                            <Button Classes="fileExpander" Click="ExpandDirectory" IsVisible="{Binding IsDir}" IsEnabled="{Binding !IsLoading}"
+                                    ToolTip.Tip="展开或收起文件夹" AutomationProperties.Name="展开或收起文件夹">
+                                <Grid>
+                                    <LucideIcon Kind="ChevronRight" Size="{StaticResource IconSizeSmall}" IsVisible="{Binding !IsExpanded}" />
+                                    <LucideIcon Kind="ChevronDown" Size="{StaticResource IconSizeSmall}" IsVisible="{Binding IsExpanded}" />
+                                </Grid>
+                            </Button>
+                            <ProgressBar Height="2" IsIndeterminate="True" IsVisible="{Binding IsLoading}" VerticalAlignment="Bottom" />
+                        </Grid>
+                    </StackPanel>
+                    <LucideIcon Grid.Column="1" Kind="{Binding IconKind}" Size="{StaticResource IconSizeNormal}" Foreground="{DynamicResource AppFileIcon}" />
+                    <TextBlock Grid.Column="2" Text="{Binding Name}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Margin="8,0,0,0" />
+                </Grid>
+                <TextBlock Grid.Column="1" Text="{Binding SizeText}" Classes="muted" VerticalAlignment="Center" Margin="0,0,16,0" />
+                <TextBlock Grid.Column="2" Text="{Binding Modified}" Classes="muted" VerticalAlignment="Center" />
+            </Grid>
+        </DataTemplate>
+        <DataTemplate x:Key="FileIconsTemplate" x:DataType="vm:FileBrowserItem">
+            <StackPanel Spacing="8" ToolTip.Tip="{Binding Path}" HorizontalAlignment="Stretch">
+                <Grid HorizontalAlignment="Center">
+                    <LucideIcon Kind="{Binding IconKind}" Size="{StaticResource IconSizeFileTile}" Foreground="{DynamicResource AppFileIcon}" />
+                </Grid>
+                <TextBlock Text="{Binding Name}" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" MaxLines="2" TextAlignment="Center" />
+            </StackPanel>
+        </DataTemplate>
+    </Window.Resources>
+    <Window.Styles>
+        <Style Selector="Button.fileExpander">
+            <Setter Property="Padding" Value="4" /><Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" /><Setter Property="MinHeight" Value="0" />
+        </Style>
+        <Style Selector="Button.breadcrumb">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="{DynamicResource AppSecondaryForeground}" />
+            <Setter Property="Padding" Value="6,0" />
+            <Setter Property="Height" Value="24" />
+            <Setter Property="MinHeight" Value="0" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Cursor" Value="Hand" />
+        </Style>
+        <Style Selector="Button.breadcrumb:disabled">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="{DynamicResource AppForeground}" />
+        </Style>
+        <Style Selector="Button.fileToolbar">
+            <Setter Property="Width" Value="32" /><Setter Property="Height" Value="32" />
+            <Setter Property="MinWidth" Value="0" /><Setter Property="MinHeight" Value="0" />
+            <Setter Property="Padding" Value="0" /><Setter Property="CornerRadius" Value="6" />
+        </Style>
+        <Style Selector="Button.columnHeader">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="MinWidth" Value="0" /><Setter Property="MinHeight" Value="0" />
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Foreground" Value="{DynamicResource AppSecondaryForeground}" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Cursor" Value="Hand" />
+        </Style>
+        <Style Selector="Button.columnHeader:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="{DynamicResource AppAccent}" />
+        </Style>
+        <Style Selector="Button.columnHeader:pressed /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="{DynamicResource AppAccentPressed}" />
+        </Style>
+        <Style Selector="Button.columnHeader:disabled /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="{DynamicResource AppDisabledForeground}" />
+        </Style>
+        <Style Selector="Button.columnHeader TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource AppSecondaryForeground}" />
+        </Style>
+        <Style Selector="Button.columnHeader:pointerover TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource AppAccent}" />
+        </Style>
+        <Style Selector="ListBox.files">
+            <Setter Property="ItemTemplate" Value="{StaticResource FileDetailsTemplate}" />
+        </Style>
+        <Style Selector="ListBox.files ListBoxItem">
+            <Setter Property="Padding" Value="16,12" /><Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="Background" Value="Transparent" /><Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="1" /><Setter Property="CornerRadius" Value="8" /><Setter Property="Margin" Value="0,1" />
+        </Style>
+        <Style Selector="ListBox.files ListBoxItem:pointerover">
+            <Setter Property="Background" Value="{DynamicResource AppSurfaceHover}" />
+        </Style>
+        <Style Selector="ListBox.files ListBoxItem:selected">
+            <Setter Property="Background" Value="{DynamicResource AppSelectionBackground}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AppAccent}" />
+        </Style>
+        <Style Selector="ListBox.files ListBoxItem:selected:pointerover">
+            <Setter Property="Background" Value="{DynamicResource AppSelectionBackground}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AppAccent}" />
+        </Style>
+        <Style Selector="ListBox.files.icons">
+            <Setter Property="ItemTemplate" Value="{StaticResource FileIconsTemplate}" />
+            <Setter Property="ItemsPanel">
+                <Setter.Value><ItemsPanelTemplate><controls:AdaptiveTilePanel MinimumItemWidth="112" Spacing="8" /></ItemsPanelTemplate></Setter.Value>
+            </Setter>
+        </Style>
+        <Style Selector="ListBox.files.icons ListBoxItem">
+            <Setter Property="MinHeight" Value="116" /><Setter Property="Padding" Value="10" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" /><Setter Property="VerticalContentAlignment" Value="Top" />
+        </Style>
+    </Window.Styles>
+    <Grid RowDefinitions="Auto,Auto,Auto,Auto,*,Auto" Margin="24,20,24,16">
+        <Grid ColumnDefinitions="Auto,*" Margin="0,0,0,20">
+            <TextBlock Text="文件" Classes="heading" />
+            <TextBlock Grid.Column="1" Text="{Binding ConnectionLabel}" Classes="muted" TextTrimming="CharacterEllipsis" HorizontalAlignment="Right"
+                       VerticalAlignment="Center" Margin="16,0,0,0" ToolTip.Tip="{Binding FilesStatus}" />
+        </Grid>
+        <fa:FAInfoBar Grid.Row="1" Severity="Error" IsOpen="{Binding HasError, Mode=OneWay}" IsVisible="{Binding HasError}"
+                      CloseButtonCommand="{Binding DismissErrorCommand}" Message="{Binding Error}" ToolTip.Tip="{Binding Error}" Margin="0,0,0,16" />
+        <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto,Auto,Auto" Margin="0,0,0,8">
+            <StackPanel Orientation="Horizontal" Spacing="6">
+                <Button x:Name="UpButton" Classes="fileToolbar" Command="{Binding UpCommand}" ToolTip.Tip="上一级（Backspace）" AutomationProperties.Name="上一级">
+                    <LucideIcon Kind="ArrowUp" Size="{StaticResource IconSizeCompact}" />
+                </Button>
+                <Button x:Name="BackButton" Classes="fileToolbar" Command="{Binding BackCommand}" IsEnabled="{Binding CanGoBack}"
+                        ToolTip.Tip="后退（鼠标侧键 1 / Alt+←）" AutomationProperties.Name="后退">
+                    <LucideIcon Kind="ArrowLeft" Size="{StaticResource IconSizeCompact}" />
+                </Button>
+                <Button x:Name="ForwardButton" Classes="fileToolbar" Command="{Binding ForwardCommand}" IsEnabled="{Binding CanGoForward}"
+                        ToolTip.Tip="前进（鼠标侧键 2 / Alt+→）" AutomationProperties.Name="前进">
+                    <LucideIcon Kind="ArrowRight" Size="{StaticResource IconSizeCompact}" />
+                </Button>
+            </StackPanel>
+            <Grid Grid.Column="1" Margin="8,0,0,0">
+                <Border Background="{DynamicResource AppSurface}" BorderBrush="{DynamicResource AppDivider}" BorderThickness="1" CornerRadius="6"
+                        Height="32" VerticalAlignment="Center" IsVisible="{Binding !IsEditingFilePath}">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <ScrollViewer x:Name="BreadcrumbScroller" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled"
+                                      VerticalAlignment="Center" Margin="3,0,2,0">
+                            <ItemsControl x:Name="Breadcrumbs" ItemsSource="{Binding FileBreadcrumbs}">
+                                <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:FileBreadcrumb">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Button Classes="breadcrumb" Theme="{StaticResource BreadcrumbButtonTheme}" Content="{Binding Name}"
+                                                    Click="BreadcrumbClick" IsEnabled="{Binding !IsCurrent}" ToolTip.Tip="{Binding Path}" />
+                                            <LucideIcon Kind="ChevronRight" Size="{StaticResource IconSizeSmall}" VerticalAlignment="Center"
+                                                        IsVisible="{Binding !IsCurrent}" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                        <Button Grid.Column="1" Click="EditPathClick" IsEnabled="{Binding CanUseFiles}" Background="Transparent" BorderThickness="0"
+                                Width="24" Height="24" MinWidth="0" MinHeight="0" Padding="0" Margin="0,0,3,0"
+                                ToolTip.Tip="编辑路径（Ctrl+L）" AutomationProperties.Name="编辑路径">
+                            <LucideIcon Kind="Pencil" Size="{StaticResource IconSizeSmall}" />
+                        </Button>
+                    </Grid>
+                </Border>
+                <TextBox x:Name="PathBox" Text="{Binding PathInput}" PlaceholderText="连接后选择存储空间" IsEnabled="{Binding CanUseFiles}"
+                         MinHeight="32" IsVisible="{Binding IsEditingFilePath}" />
+            </Grid>
+            <Button Grid.Column="2" Classes="fileToolbar" Command="{Binding GoCommand}" Margin="8,0,0,0" ToolTip.Tip="前往" AutomationProperties.Name="前往">
+                <LucideIcon Kind="ArrowRight" Size="{StaticResource IconSizeCompact}" />
+            </Button>
+            <Button Grid.Column="3" Classes="fileToolbar" Command="{Binding RefreshCommand}" Margin="8,0,0,0" ToolTip.Tip="刷新（F5）" AutomationProperties.Name="刷新">
+                <LucideIcon Kind="RefreshCw" Size="{StaticResource IconSizeCompact}" />
+            </Button>
+            <Border Grid.Column="4" Margin="8,0,0,0" Padding="2" Background="{DynamicResource AppSurface}"
+                    BorderBrush="{DynamicResource AppDivider}" BorderThickness="1" CornerRadius="8" VerticalAlignment="Center">
+                <StackPanel Orientation="Horizontal" Spacing="2">
+                    <RadioButton x:Name="DetailsViewButton" Theme="{StaticResource FileViewToggleTheme}" GroupName="FileViewMode"
+                                 IsChecked="{Binding IsDetailsView, Mode=OneWay}" Command="{Binding ShowDetailsCommand}"
+                                 ToolTip.Tip="详情" AutomationProperties.Name="详情视图">
+                        <LucideIcon Kind="List" Size="{StaticResource IconSizeCompact}" />
+                    </RadioButton>
+                    <RadioButton x:Name="IconsViewButton" Theme="{StaticResource FileViewToggleTheme}" GroupName="FileViewMode"
+                                 IsChecked="{Binding IsIconView, Mode=OneWay}" Command="{Binding ShowIconsCommand}"
+                                 ToolTip.Tip="图标" AutomationProperties.Name="图标视图">
+                        <LucideIcon Kind="LayoutGrid" Size="{StaticResource IconSizeCompact}" />
+                    </RadioButton>
+                    <RadioButton x:Name="TreeViewButton" Theme="{StaticResource FileViewToggleTheme}" GroupName="FileViewMode"
+                                 IsChecked="{Binding IsTreeView, Mode=OneWay}" Command="{Binding ShowTreeCommand}"
+                                 ToolTip.Tip="树" AutomationProperties.Name="树视图">
+                        <LucideIcon Kind="ListTree" Size="{StaticResource IconSizeCompact}" />
+                    </RadioButton>
+                </StackPanel>
+            </Border>
+        </Grid>
+        <Grid Grid.Row="3" ColumnDefinitions="*,Auto" Margin="0,0,0,16">
+            <ComboBox x:Name="StorageRoots" ItemsSource="{Binding Roots}" SelectedItem="{Binding SelectedRoot}" IsEnabled="{Binding CanUseFiles}"
+                      HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Margin="0,0,16,0">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate x:DataType="p:StorageRoot">
+                        <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                <Button x:Name="CreateFolderButton" Classes="fileToolbar" Click="CreateFolderClick" IsEnabled="{Binding CanCreateFolder}"
+                        ToolTip.Tip="新建文件夹" AutomationProperties.Name="新建文件夹">
+                    <LucideIcon Kind="FolderPlus" Size="{StaticResource IconSizeCompact}" />
+                </Button>
+                <Button x:Name="DownloadButton" Classes="fileToolbar primary" IsEnabled="{Binding CanDownloadSelection}"
+                        Click="DownloadClick" ToolTip.Tip="下载文件" AutomationProperties.Name="下载文件">
+                    <LucideIcon Kind="Download" Size="{StaticResource IconSizeCompact}" />
+                </Button>
+            </StackPanel>
+        </Grid>
+        <Border Grid.Row="4" CornerRadius="14" Background="{DynamicResource AppSurface}" ClipToBounds="True" Grid.IsSharedSizeScope="True">
+            <Grid RowDefinitions="Auto,*">
+                <Border BorderBrush="{DynamicResource AppDivider}" BorderThickness="0,0,0,1" Padding="16,12" IsVisible="{Binding IsListHeaderVisible}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" SharedSizeGroup="FileSize" />
+                            <ColumnDefinition Width="Auto" SharedSizeGroup="FileModified" />
+                        </Grid.ColumnDefinitions>
+                        <Button x:Name="NameSortHeader" Classes="columnHeader" Command="{Binding SortByNameCommand}" Click="SortHeaderClick"
+                                ToolTip.Tip="按名称排序；点击切换升序/降序" AutomationProperties.Name="按名称排序">
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <TextBlock Text="名称" />
+                                <Grid Width="12">
+                                    <LucideIcon Kind="ArrowUp" Size="{StaticResource IconSizeSmall}" Foreground="{DynamicResource AppAccent}"
+                                                HorizontalAlignment="Center" IsVisible="{Binding IsNameAscending}" />
+                                    <LucideIcon Kind="ArrowDown" Size="{StaticResource IconSizeSmall}" Foreground="{DynamicResource AppAccent}"
+                                                HorizontalAlignment="Center" IsVisible="{Binding IsNameDescending}" />
+                                </Grid>
+                            </StackPanel>
+                        </Button>
+                        <Button x:Name="SizeSortHeader" Grid.Column="1" Classes="columnHeader" Command="{Binding SortBySizeCommand}" Click="SortHeaderClick"
+                                Margin="0,0,16,0" ToolTip.Tip="按大小排序；点击切换升序/降序"
+                                AutomationProperties.Name="按大小排序">
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <TextBlock Text="大小" />
+                                <Grid Width="12">
+                                    <LucideIcon Kind="ArrowUp" Size="{StaticResource IconSizeSmall}" Foreground="{DynamicResource AppAccent}"
+                                                HorizontalAlignment="Center" IsVisible="{Binding IsSizeAscending}" />
+                                    <LucideIcon Kind="ArrowDown" Size="{StaticResource IconSizeSmall}" Foreground="{DynamicResource AppAccent}"
+                                                HorizontalAlignment="Center" IsVisible="{Binding IsSizeDescending}" />
+                                </Grid>
+                            </StackPanel>
+                        </Button>
+                        <Button x:Name="ModifiedSortHeader" Grid.Column="2" Classes="columnHeader" Command="{Binding SortByModifiedCommand}" Click="SortHeaderClick"
+                                ToolTip.Tip="按修改时间排序；点击切换升序/降序"
+                                AutomationProperties.Name="按修改时间排序">
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <TextBlock Text="修改时间" />
+                                <Grid Width="12">
+                                    <LucideIcon Kind="ArrowUp" Size="{StaticResource IconSizeSmall}" Foreground="{DynamicResource AppAccent}"
+                                                HorizontalAlignment="Center" IsVisible="{Binding IsModifiedAscending}" />
+                                    <LucideIcon Kind="ArrowDown" Size="{StaticResource IconSizeSmall}" Foreground="{DynamicResource AppAccent}"
+                                                HorizontalAlignment="Center" IsVisible="{Binding IsModifiedDescending}" />
+                                </Grid>
+                            </StackPanel>
+                        </Button>
+                    </Grid>
+                </Border>
+                <Grid Grid.Row="1">
+                    <ListBox x:Name="FileList" Classes="files" Classes.icons="{Binding IsIconView}" SelectionMode="Multiple"
+                             Selection="{Binding Selection}" ItemsSource="{Binding VisibleFiles}"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                        <ListBox.ContextFlyout>
+                            <MenuFlyout>
+                                <MenuItem x:Name="FileCreateFolderMenuItem" Header="新建文件夹" Click="CreateFolderClick"
+                                          IsEnabled="{Binding CanCreateFolder}">
+                                    <MenuItem.Icon><LucideIcon Kind="FolderPlus" Size="{StaticResource IconSizeCompact}" /></MenuItem.Icon>
+                                </MenuItem>
+                                <Separator />
+                                <MenuItem x:Name="FileDownloadMenuItem" Header="下载" Click="ContextDownloadClick"
+                                          IsEnabled="{Binding CanDownloadSelection}">
+                                    <MenuItem.Icon><LucideIcon Kind="Download" Size="{StaticResource IconSizeCompact}" /></MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem x:Name="FileCopyPathMenuItem" Header="复制路径" Click="ContextCopyPathClick"
+                                          IsEnabled="{Binding HasSelection}">
+                                    <MenuItem.Icon><LucideIcon Kind="Copy" Size="{StaticResource IconSizeCompact}" /></MenuItem.Icon>
+                                </MenuItem>
+                                <Separator />
+                                <MenuItem x:Name="FileSelectAllMenuItem" Header="全选" Command="{Binding SelectAllCommand}" InputGesture="Ctrl+A">
+                                    <MenuItem.Icon><LucideIcon Kind="SquareCheckBig" Size="{StaticResource IconSizeCompact}" /></MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem x:Name="FileRefreshMenuItem" Header="刷新" Command="{Binding RefreshCommand}" InputGesture="F5">
+                                    <MenuItem.Icon><LucideIcon Kind="RefreshCw" Size="{StaticResource IconSizeCompact}" /></MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem x:Name="FileSortMenuItem" Header="排序" IsEnabled="{Binding CanUseFiles}">
+                                    <MenuItem.Icon><LucideIcon Kind="ArrowUpDown" Size="{StaticResource IconSizeCompact}" /></MenuItem.Icon>
+                                    <MenuItem x:Name="FileSortNameMenuItem" Header="名称" ToggleType="Radio" GroupName="FileSortField"
+                                              IsChecked="{Binding IsNameSort, Mode=OneWay}" Command="{Binding ChooseNameSortCommand}" />
+                                    <MenuItem x:Name="FileSortSizeMenuItem" Header="大小" ToggleType="Radio" GroupName="FileSortField"
+                                              IsChecked="{Binding IsSizeSort, Mode=OneWay}" Command="{Binding ChooseSizeSortCommand}" />
+                                    <MenuItem x:Name="FileSortModifiedMenuItem" Header="修改时间" ToggleType="Radio" GroupName="FileSortField"
+                                              IsChecked="{Binding IsModifiedSort, Mode=OneWay}" Command="{Binding ChooseModifiedSortCommand}" />
+                                    <Separator />
+                                    <MenuItem x:Name="FileSortAscendingMenuItem" Header="升序" ToggleType="Radio" GroupName="FileSortDirection"
+                                              IsChecked="{Binding IsSortAscending, Mode=OneWay}" Command="{Binding SortAscendingCommand}" />
+                                    <MenuItem x:Name="FileSortDescendingMenuItem" Header="降序" ToggleType="Radio" GroupName="FileSortDirection"
+                                              IsChecked="{Binding IsSortDescending, Mode=OneWay}" Command="{Binding SortDescendingCommand}" />
+                                </MenuItem>
+                                <Separator />
+                                <MenuItem x:Name="FileDeleteMenuItem" Header="删除" Click="ContextDeleteClick" InputGesture="Delete"
+                                          IsEnabled="{Binding CanDeleteSelection}">
+                                    <MenuItem.Icon><LucideIcon Kind="Trash" Size="{StaticResource IconSizeCompact}" /></MenuItem.Icon>
+                                </MenuItem>
+                            </MenuFlyout>
+                        </ListBox.ContextFlyout>
+                    </ListBox>
+                    <Canvas x:Name="SelectionCanvas" IsHitTestVisible="False" ClipToBounds="True">
+                        <Border x:Name="SelectionBox" IsVisible="False" Background="{DynamicResource AppSelectionBackground}"
+                                BorderBrush="{DynamicResource AppAccent}" BorderThickness="1" CornerRadius="4" Opacity="0.55" />
+                    </Canvas>
+                    <TextBlock Text="{Binding FilesStatus}" Classes="muted" TextWrapping="Wrap" IsVisible="{Binding FilesEmpty}"
+                               HorizontalAlignment="Center" VerticalAlignment="Center" Margin="24" />
+                    <ProgressBar IsIndeterminate="True" Height="3" IsVisible="{Binding FilesLoading}" VerticalAlignment="Top" />
+                </Grid>
+            </Grid>
+        </Border>
+        <Grid Grid.Row="5" ColumnDefinitions="*,Auto,Auto" Margin="0,8,0,0">
+            <TextBlock Text="{Binding FilesStatus}" Classes="muted" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding FilesStatus}"
+                       VerticalAlignment="Center" IsVisible="{Binding !HasTransferStatus}" />
+            <TextBlock Text="{Binding TransferStatus}" Classes="muted" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding TransferStatus}"
+                       VerticalAlignment="Center" Margin="0,0,8,0" IsVisible="{Binding HasTransferStatus}" />
+            <Button Grid.Column="1" Content="取消下载" IsVisible="{Binding Downloading}" Command="{Binding CancelDownloadCommand}" />
+            <Button Grid.Column="2" Content="取消上传" IsVisible="{Binding Uploading}" Command="{Binding CancelUploadCommand}" />
+            <ProgressBar Grid.ColumnSpan="3" IsIndeterminate="True" Height="2" IsVisible="{Binding FileDragPreparing}" VerticalAlignment="Bottom" />
+        </Grid>
+    </Grid>
+</Window>

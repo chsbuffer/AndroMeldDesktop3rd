@@ -1,0 +1,78 @@
+<Window xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Andromeld.Desktop.ViewModels" xmlns:controls="using:Andromeld.Desktop.Controls"
+        x:Class="Andromeld.Desktop.Views.MirrorWindow" x:DataType="vm:MirrorViewModel"
+        Title="{Binding Title}" Width="490" Height="880" MinWidth="280" MinHeight="360" Focusable="True"
+        Background="{DynamicResource VideoBackground}" FontFamily="Inter, Noto Sans CJK SC, Microsoft YaHei UI, PingFang SC">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceInclude Source="avares://Andromeld.Desktop/Styles/ApplicationMirrorDecorations.axaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+    <Window.Styles>
+        <Style Selector="Grid#MirrorContent Button">
+            <Setter Property="Background" Value="{DynamicResource AppControlBackground}" />
+            <Setter Property="Foreground" Value="{DynamicResource AppForeground}" />
+            <Setter Property="CornerRadius" Value="18" /><Setter Property="Padding" Value="6" /><Setter Property="Cursor" Value="Hand" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+        </Style>
+        <Style Selector="Button.navigation">
+            <Setter Property="Width" Value="52" /><Setter Property="Height" Value="52" /><Setter Property="CornerRadius" Value="14" />
+        </Style>
+        <Style Selector="Border.phone">
+            <Setter Property="Margin" Value="12,12,0,12" /><Setter Property="CornerRadius" Value="16" />
+        </Style>
+    </Window.Styles>
+    <Grid x:Name="MirrorContent" RowDefinitions="Auto,*">
+        <Border Background="{DynamicResource AppErrorBackground}" Padding="16,8" IsVisible="{Binding HasError}">
+            <TextBlock Text="{Binding Error}" Foreground="{DynamicResource AppErrorForeground}" TextWrapping="Wrap" />
+        </Border>
+        <Grid Grid.Row="1" ColumnDefinitions="*,Auto">
+            <Border Classes.phone="{Binding IsPhone}" ClipToBounds="True">
+                <Grid x:Name="Viewport">
+                    <TextBlock Text="{Binding Status}" Foreground="{DynamicResource AppSecondaryForeground}" HorizontalAlignment="Center"
+                               VerticalAlignment="Center" IsVisible="{Binding !HasFrame}" Margin="20" TextWrapping="Wrap" />
+                    <controls:VideoView x:Name="Screen" Frame="{Binding Frame}" IsVisible="{Binding ShowVideo}"
+                                        UseNativeRendering="{Binding IsPhone}" />
+                    <Button Content="重新启动" Command="{Binding RelaunchCommand}" IsVisible="{Binding IsTaskAway}" HorizontalAlignment="Center"
+                            VerticalAlignment="Center" Padding="20,12" />
+                </Grid>
+            </Border>
+            <Grid Grid.Column="1" IsVisible="{Binding IsPhone}" RowDefinitions="*,Auto" Margin="8,12,12,12" RowSpacing="16">
+                <StackPanel Spacing="8" VerticalAlignment="Top">
+                    <Button x:Name="FusionModeButton" Classes="navigation" Command="{Binding EnterFusionModeCommand}"
+                            ToolTip.Tip="{Binding FusionModeHint}" AutomationProperties.Name="融合模式" Focusable="False">
+                        <LucideIcon Kind="PanelsTopLeft" Size="{StaticResource IconSizeLarge}" />
+                    </Button>
+                    <Button x:Name="DisplayPowerButton" Classes="navigation" Classes.selected="{Binding IsScreenOff}"
+                            Command="{Binding ToggleDisplayPowerCommand}" ToolTip.Tip="{Binding DisplayPowerLabel}"
+                            AutomationProperties.Name="{Binding DisplayPowerLabel}" Focusable="False">
+                        <Grid>
+                            <LucideIcon Kind="Smartphone" Size="{StaticResource IconSizeLarge}" />
+                            <LucideIcon Kind="Slash" Size="{StaticResource IconSizeLarge}" IsVisible="{Binding !IsScreenOff}" />
+                        </Grid>
+                    </Button>
+                </StackPanel>
+                <StackPanel Grid.Row="1" x:Name="NavigationRail" VerticalAlignment="Bottom" Spacing="8">
+                    <Button x:Name="PowerButton" Classes="navigation" Command="{Binding PowerCommand}" ToolTip.Tip="电源" AutomationProperties.Name="电源">
+                        <LucideIcon Kind="Power" Size="{StaticResource IconSizeLarge}" />
+                    </Button>
+                    <Button x:Name="RecentsButton" Classes="navigation" Command="{Binding RecentsCommand}"
+                            ToolTip.Tip="{Binding Shortcuts.RecentsGesture, StringFormat='最近任务（{0}）'}" AutomationProperties.Name="最近任务">
+                        <LucideIcon Kind="Square" Size="{StaticResource IconSizeLarge}" />
+                    </Button>
+                    <Button x:Name="HomeButton" Classes="navigation" Command="{Binding HomeCommand}"
+                            ToolTip.Tip="{Binding Shortcuts.HomeGesture, StringFormat='主页（{0}）'}" AutomationProperties.Name="主页">
+                        <LucideIcon Kind="Circle" Size="{StaticResource IconSizeLarge}" />
+                    </Button>
+                    <Button x:Name="BackButton" Classes="navigation" Command="{Binding BackCommand}"
+                            ToolTip.Tip="{Binding Shortcuts.BackGesture, StringFormat='返回（{0}）'}"
+                            AutomationProperties.Name="返回">
+                        <LucideIcon Kind="ChevronLeft" Size="{StaticResource IconSizeLarge}" />
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Grid>
+    </Grid>
+</Window>

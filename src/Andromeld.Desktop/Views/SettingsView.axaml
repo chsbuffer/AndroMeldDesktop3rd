@@ -1,0 +1,114 @@
+<UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Andromeld.Desktop.ViewModels"
+             xmlns:services="using:Andromeld.Desktop.Services"
+             x:Class="Andromeld.Desktop.Views.SettingsView" x:DataType="vm:MainViewModel">
+    <Grid RowDefinitions="Auto,*">
+        <TextBlock Text="设置" Classes="heading" Margin="0,0,0,20" />
+        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled" Classes="pageScroll">
+            <StackPanel Spacing="16">
+                <Border Classes="card">
+                    <StackPanel Spacing="16">
+                        <TextBlock Text="设备同步" FontSize="17" FontWeight="SemiBold" />
+                        <StackPanel Spacing="8">
+                            <ToggleSwitch x:Name="AudioForwardingToggle" Content="音频转发" OnContent="开启" OffContent="关闭"
+                                          IsChecked="{Binding AudioForwardingEnabled, Mode=TwoWay}" />
+                            <TextBlock Text="镜像时在电脑播放手机声音。多个窗口共用一条音频流。" Classes="muted" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <StackPanel Spacing="8">
+                            <ToggleSwitch x:Name="ClipboardSyncToggle" Content="剪贴板同步" OnContent="开启" OffContent="关闭"
+                                          IsChecked="{Binding ClipboardSyncEnabled, Mode=TwoWay}" />
+                            <TextBlock Text="在手机和电脑之间双向同步文本，应用窗口活动时生效。" Classes="muted" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <StackPanel Spacing="8">
+                            <ToggleSwitch x:Name="NotificationSyncToggle" Content="通知同步" OnContent="开启" OffContent="关闭"
+                                          IsChecked="{Binding NotificationSyncEnabled, Mode=TwoWay}" />
+                            <TextBlock Text="在 Linux 和 Windows 显示手机的新通知。通过通知按钮打开应用或清除手机通知；Windows 还可直接回复支持回复的通知。首次连接不重放已有通知。"
+                                       Classes="muted" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <TextBlock Text="默认开启，修改后立即生效并自动保存。" Classes="muted" TextWrapping="Wrap" />
+                    </StackPanel>
+                </Border>
+                <Border Classes="card" VerticalAlignment="Top">
+                    <StackPanel Spacing="16" DataContext="{Binding MirrorShortcuts}" x:DataType="vm:MirrorShortcutsViewModel">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="镜像控制" FontSize="17" FontWeight="SemiBold" />
+                            <TextBlock Text="手机屏幕的主页和最近任务使用以下修饰键。" Classes="muted" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="修饰键" />
+                            <ComboBox x:Name="MirrorModifierList" ItemsSource="{Binding Options}" SelectedItem="{Binding SelectedModifier}"
+                                      HorizontalAlignment="Stretch">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:MirrorModifierOption">
+                                        <TextBlock Text="{Binding Label}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </StackPanel>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Text="最近任务" /><TextBlock Grid.Column="1" Text="{Binding RecentsGesture}" Classes="muted" />
+                        </Grid>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Text="主页" /><TextBlock Grid.Column="1" Text="{Binding HomeGesture}" Classes="muted" />
+                        </Grid>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Text="返回" /><TextBlock Grid.Column="1" Text="Esc" Classes="muted" />
+                        </Grid>
+                        <StackPanel Spacing="8">
+                            <ToggleSwitch x:Name="MirrorRightClickBackToggle" Content="右键返回" OnContent="开启" OffContent="关闭"
+                                          IsChecked="{Binding RightClickBackEnabled, Mode=TwoWay}" />
+                            <TextBlock Text="开启后，在手机和应用镜像中点击鼠标右键即可返回。关闭时，右键模拟长按以打开上下文菜单。"
+                                       Classes="muted" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <TextBlock Text="Esc 同时适用于手机和应用镜像。修改后立即生效并自动保存。" Classes="muted" TextWrapping="Wrap" />
+                        <TextBlock Text="{Binding Error}" IsVisible="{Binding HasError}" Foreground="{DynamicResource AppErrorForeground}"
+                                   TextWrapping="Wrap" />
+                    </StackPanel>
+                </Border>
+                <Border Classes="card">
+                    <StackPanel Spacing="16">
+                        <TextBlock Text="关于" FontSize="17" FontWeight="SemiBold" />
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="AndroMeld Desktop" FontWeight="SemiBold" />
+                        </StackPanel>
+                        <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="16" RowSpacing="8">
+                            <TextBlock Text="版本号" Classes="muted" />
+                            <SelectableTextBlock Grid.Column="1" Text="{x:Static services:ApplicationInfo.Version}" TextWrapping="Wrap" />
+                            <TextBlock Grid.Row="1" Text="构建日期" Classes="muted" />
+                            <SelectableTextBlock Grid.Row="1" Grid.Column="1" Text="{x:Static services:ApplicationInfo.BuildDate}" TextWrapping="Wrap" />
+                            <TextBlock Grid.Row="2" Text="作者" Classes="muted" />
+                            <TextBlock Grid.Row="2" Grid.Column="1" Text="ChsBuffer" />
+                        </Grid>
+                        <HyperlinkButton Content="下载地址" NavigateUri="{x:Static services:ApplicationInfo.DownloadChannel}" HorizontalAlignment="Left" ToolTip.Tip="{x:Static services:ApplicationInfo.DownloadChannel}" />
+                    </StackPanel>
+                </Border>
+                <Border Classes="card">
+                    <StackPanel Spacing="16">
+                        <TextBlock Text="Credits" FontSize="17" FontWeight="SemiBold" />
+                        <TextBlock Text="AndroMeld" Classes="muted" TextWrapping="Wrap" />
+                        <TextBlock Text="Avalonia" Classes="muted" TextWrapping="Wrap" />
+                        <TextBlock Text="Avalonia.Labs.Notifications" Classes="muted" TextWrapping="Wrap" />
+                        <TextBlock Text="FluentAvaloniaUI" Classes="muted" TextWrapping="Wrap" />
+                        <TextBlock Text="Lucide.Avalonia" Classes="muted" TextWrapping="Wrap" />
+                        <TextBlock Text="Inter" Classes="muted" TextWrapping="Wrap" />
+                        <TextBlock Text="ReactiveUI" Classes="muted" TextWrapping="Wrap" />
+                        <TextBlock Text="ReactiveUI.SourceGenerators" Classes="muted" TextWrapping="Wrap" />
+                        <TextBlock Text="Iciclecreek.Avalonia.Terminal" Classes="muted" TextWrapping="Wrap" />
+                        <TextBlock Text="XTerm.NET" Classes="muted" TextWrapping="Wrap" />
+                        <TextBlock Text="SDL3" Classes="muted" TextWrapping="Wrap" />
+                        <TextBlock Text="SDL3-CS" Classes="muted" TextWrapping="Wrap" />
+                        <TextBlock Text="FFmpeg" Classes="muted" TextWrapping="Wrap" />
+                        <TextBlock Text="FFmpeg.AutoGen" Classes="muted" TextWrapping="Wrap" />
+                        <TextBlock Text="Tmds.MDns" Classes="muted" TextWrapping="Wrap" />
+                        <TextBlock Text="AdvancedSharpAdbClient" Classes="muted" TextWrapping="Wrap" />
+                        <TextBlock Text="Entity Framework Core" Classes="muted" TextWrapping="Wrap" />
+                        <TextBlock Text="SQLite" Classes="muted" TextWrapping="Wrap" />
+                        <TextBlock Text="Microsoft.Windows.CsWin32" Classes="muted" TextWrapping="Wrap" />
+                        <TextBlock Text="SkiaSharp" Classes="muted" TextWrapping="Wrap" />
+                        <TextBlock Text="HarfBuzzSharp" Classes="muted" TextWrapping="Wrap" />
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

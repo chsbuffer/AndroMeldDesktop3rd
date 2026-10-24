@@ -1,0 +1,151 @@
+<Styles xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:fa="using:FluentAvalonia.UI.Controls">
+    <Style Selector=":is(Window)">
+        <Setter Property="Icon" Value="avares://Andromeld.Desktop/Assets/app_icon.ico" />
+    </Style>
+    <Style Selector="Window.workspace">
+        <Setter Property="Background" Value="{DynamicResource AppBackground}" />
+        <Setter Property="Foreground" Value="{DynamicResource AppForeground}" />
+        <Setter Property="FontFamily" Value="Inter, Noto Sans CJK SC, Microsoft YaHei UI, PingFang SC" />
+    </Style>
+    <Style Selector="TextBlock.muted">
+        <Setter Property="Foreground" Value="{DynamicResource AppSecondaryForeground}" /><Setter Property="FontSize" Value="12" />
+    </Style>
+    <Style Selector="TextBlock.heading">
+        <Setter Property="FontSize" Value="26" /><Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style Selector="Border.card">
+        <Setter Property="Background" Value="{DynamicResource AppSurface}" /><Setter Property="CornerRadius" Value="16" />
+        <Setter Property="Padding" Value="20" />
+    </Style>
+    <Style Selector="Border.mirrorImePreedit">
+        <Setter Property="Background" Value="{DynamicResource AppSurface}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource AppBorder}" /><Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="6" /><Setter Property="Padding" Value="8,4" />
+    </Style>
+    <Style Selector="Border.mirrorImePreedit TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource AppForeground}" />
+    </Style>
+    <Style Selector="fa|FAInfoBar /template/ TextBlock#Message">
+        <Setter Property="MaxLines" Value="3" /><Setter Property="TextTrimming" Value="CharacterEllipsis" />
+    </Style>
+    <Style Selector="Button">
+        <Setter Property="Background" Value="{DynamicResource AppControlBackground}" />
+        <Setter Property="Foreground" Value="{DynamicResource AppForeground}" />
+        <Setter Property="BorderThickness" Value="1" /><Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="CornerRadius" Value="10" /><Setter Property="Padding" Value="16,8" /><Setter Property="Cursor" Value="Hand" />
+    </Style>
+    <Style Selector="Button /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Transitions">
+            <Transitions>
+                <BrushTransition Property="Background" Duration="0:0:0.12" /><BrushTransition Property="BorderBrush" Duration="0:0:0.12" />
+            </Transitions>
+        </Setter>
+    </Style>
+    <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource AppControlHover}" />
+        <Setter Property="Foreground" Value="{DynamicResource AppForeground}" />
+    </Style>
+    <Style Selector="Button:pressed /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource AppControlPressed}" />
+    </Style>
+    <Style Selector="Button.primary">
+        <Setter Property="Background" Value="{DynamicResource AppAccent}" />
+        <Setter Property="Foreground" Value="{DynamicResource AppAccentForeground}" />
+    </Style>
+    <Style Selector="Button.primary:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource AppAccentHover}" />
+        <Setter Property="Foreground" Value="{DynamicResource AppAccentForeground}" />
+    </Style>
+    <Style Selector="Button.primary:pressed /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource AppAccentPressed}" />
+        <Setter Property="Foreground" Value="{DynamicResource AppAccentForeground}" />
+    </Style>
+    <Style Selector="Button:focus-visible /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="BorderBrush" Value="{DynamicResource AppAccent}" />
+    </Style>
+    <Style Selector="Button.searchSelected /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource AppSelectionBackground}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource AppAccent}" />
+    </Style>
+    <Style Selector="Button.navigation.selected /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="BorderBrush" Value="{DynamicResource AppAccent}" />
+        <Setter Property="Foreground" Value="{DynamicResource AppAccent}" />
+    </Style>
+    <Style Selector="Button:disabled /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource AppControlDisabled}" />
+        <Setter Property="Foreground" Value="{DynamicResource AppDisabledForeground}" />
+    </Style>
+    <Style Selector="Button.primary:disabled /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource AppControlDisabled}" />
+        <Setter Property="Foreground" Value="{DynamicResource AppDisabledForeground}" />
+    </Style>
+    <Style Selector="HyperlinkButton">
+        <Setter Property="Background" Value="Transparent" /><Setter Property="Foreground" Value="{DynamicResource AppAccent}" />
+        <Setter Property="Padding" Value="0" /><Setter Property="CornerRadius" Value="4" />
+    </Style>
+    <Style Selector="HyperlinkButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="Transparent" /><Setter Property="Foreground" Value="{DynamicResource AppAccentHover}" />
+    </Style>
+    <Style Selector="HyperlinkButton:pressed /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="Transparent" /><Setter Property="Foreground" Value="{DynamicResource AppAccentPressed}" />
+    </Style>
+    <Style Selector="Border.segmentedSelector">
+        <Setter Property="Background" Value="{DynamicResource AppControlBackground}" />
+        <Setter Property="CornerRadius" Value="12" /><Setter Property="Padding" Value="4" />
+    </Style>
+    <Style Selector="Button.page">
+        <Setter Property="Background" Value="Transparent" /><Setter Property="Padding" Value="12,8" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+    </Style>
+    <Style Selector="Button.page.selected">
+        <Setter Property="Background" Value="{DynamicResource AppSurface}" /><Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style Selector="Button.page.selected:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource AppSurface}" />
+    </Style>
+    <Style Selector="Button.deviceIcon">
+        <Setter Property="Width" Value="28" /><Setter Property="Height" Value="28" />
+        <Setter Property="MinWidth" Value="0" /><Setter Property="MinHeight" Value="0" />
+        <Setter Property="Padding" Value="0" /><Setter Property="Background" Value="Transparent" /><Setter Property="CornerRadius" Value="8" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" /><Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Foreground" Value="{DynamicResource AppSecondaryForeground}" />
+    </Style>
+    <Style Selector="TextBox">
+        <Setter Property="CornerRadius" Value="10" /><Setter Property="Padding" Value="12,8" /><Setter Property="MinWidth" Value="0" />
+    </Style>
+    <Style Selector="ComboBox">
+        <Setter Property="CornerRadius" Value="10" /><Setter Property="MinWidth" Value="0" />
+    </Style>
+    <Style Selector="ListBox">
+        <Setter Property="Background" Value="Transparent" /><Setter Property="BorderThickness" Value="0" />
+    </Style>
+    <!-- Keep page content out of FluentAvalonia's overlaid scrollbar columns. -->
+    <Style
+        Selector="ScrollViewer.pageScroll /template/ ScrollContentPresenter#PART_ContentPresenter, ListBox.apps /template/ ScrollViewer#PART_ScrollViewer /template/ ScrollContentPresenter#PART_ContentPresenter">
+        <Setter Property="Grid.ColumnSpan" Value="1" /><Setter Property="Grid.RowSpan" Value="1" />
+    </Style>
+    <Style Selector="ListBox.apps ListBoxItem">
+        <Setter Property="Padding" Value="0" /><Setter Property="CornerRadius" Value="14" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" /><Setter Property="VerticalContentAlignment" Value="Stretch" />
+    </Style>
+    <Style Selector="Border.appTile">
+        <Setter Property="Background" Value="{DynamicResource AppSurface}" /><Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="1" /><Setter Property="Cursor" Value="Hand" />
+    </Style>
+    <Style Selector="ListBoxItem:pointerover Border.appTile">
+        <Setter Property="Background" Value="{DynamicResource AppSurfaceHover}" />
+    </Style>
+    <Style Selector="ListBoxItem:selected Border.appTile">
+        <Setter Property="Background" Value="{DynamicResource AppSelectionBackground}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource AppAccent}" />
+    </Style>
+    <Style Selector="ListBoxItem:focus-visible Border.appTile">
+        <Setter Property="BorderBrush" Value="{DynamicResource AppAccent}" />
+    </Style>
+    <Style Selector="ListBoxItem:disabled Border.appTile">
+        <Setter Property="Opacity" Value="0.5" />
+    </Style>
+    <Style Selector="ListBox.files ListBoxItem">
+        <Setter Property="Padding" Value="16,12" /><Setter Property="HorizontalContentAlignment" Value="Stretch" />
+    </Style>
+</Styles>

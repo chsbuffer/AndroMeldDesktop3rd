@@ -1,0 +1,29 @@
+bin/
+obj/
+tests/bin/
+tests/obj/
+*.user
+.idea/
+artifacts/
+__pycache__/
+*.pyc
+.vs/
+.DS_Store
+TestResults/
+*.userosscache
+*.suo
+
+# Local credentials, application cache, and crash dumps.
+settings.json
+settings.json.tmp
+cache-v*.db*
+.env
+.env.*
+core
+core.*
+*.dmp
+
+# Local test packages, captures, and dumps.
+*.apk
+*.dmg
+webrtc_internals_dump*

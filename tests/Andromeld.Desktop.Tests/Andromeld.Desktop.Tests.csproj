@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <ApplicationManifest>../../src/Andromeld.Desktop/app.manifest</ApplicationManifest>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/Andromeld.Desktop/Andromeld.Desktop.csproj" />
+    <!-- Match the app's own publish root so trimmed test runs exercise preserved app code.
+         Root the harness too: its mock server uses reflection-based ASP.NET wiring. -->
+    <TrimmerRootAssembly Include="Andromeld.Desktop" Condition="'$(PublishTrimmed)' == 'true'" />
+    <TrimmerRootAssembly Include="Andromeld.Desktop.Tests" Condition="'$(PublishTrimmed)' == 'true'" />
+    <PackageReference Include="Avalonia.Headless" Version="12.1.4" />
+    <PackageReference Include="ChsBuffer.Avalonia.AppHost" Version="12.0.1-skia4" PrivateAssets="all" />
+    <Compile Include="../Shared/MockPhone.cs" Link="MockPhone.cs" />
+    <Compile Include="../Shared/MockPhone.Notifications.cs" Link="MockPhone.Notifications.cs" />
+    <Compile Include="../Shared/FakeAdbServer.cs" Link="FakeAdbServer.cs" />
+    <Compile Include="../Shared/FakeUsbDownloads.cs" Link="FakeUsbDownloads.cs" />
+    <Compile Include="../Shared/MockPhone.Audio.cs" Link="MockPhone.Audio.cs" />
+    <Compile Include="../Shared/MockPhone.FileDrag.cs" Link="MockPhone.FileDrag.cs" />
+    <Compile Include="../Shared/MockPhone.Mirroring.cs" Link="MockPhone.Mirroring.cs" />
+    <Compile Include="../Shared/MockPhone.Terminal.cs" Link="MockPhone.Terminal.cs" />
+    <Compile Include="../Shared/PackageFixture.cs" Link="PackageFixture.cs" />
+    <None Include="../Shared/Media/*.h264" Link="Media/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <Import Project="../../build/TrimmerRoots.props" />
+  <Import Project="../../build/PrunePackages.props" />
+</Project>
